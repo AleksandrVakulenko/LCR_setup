@@ -21,7 +21,7 @@ Voltage_gen = 1; % V
 Delta_limit = 50/1e6;
 filename = "test_06_R.mat";
 Read_mode = "old"; % "old" or "new"
-
+Wait_mode = "old";
 
 
 % DEV INIT
@@ -56,15 +56,23 @@ try
         SR860.set_gen_config(Voltage_gen_rms, freq);
         Period = 1/freq;
         if Period <= 0.02 % FIXME: how to choose tc?
-            SR860.set_time_constant(10*Period);
+            Time_const = SR860.set_time_constant(15*Period);
         elseif Period <= 0.05
-            SR860.set_time_constant(5*Period);
+            Time_const = SR860.set_time_constant(6*Period);
+        elseif Period <= 0.1
+            Time_const = SR860.set_time_constant(3*Period);
         else
-            SR860.set_time_constant(1.5*Period);
+            Time_const = SR860.set_time_constant(1.5*Period);
+        end
+            
+        % -----------------------------------------------
+
+        if Wait_mode == "old"
+            adev_utils.Wait(Period, 'Wait one period');
+        else
+            adev_utils.Wait(Time_const, 'Wait one period');
         end
 
-        % -----------------------------------------------
-        adev_utils.Wait(Period*1, 'Wait one period');
         stable = false;
         [R_old, Phase_old] = data_get_R_and_Phase_wrapper(SR860, Read_mode);
         Stable_timeout = Period;
