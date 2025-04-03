@@ -12,12 +12,12 @@ clc
 
 R_test = 1100; % Ohm
 
-Freq_min = 1; % Hz
-Freq_max = 1000; % Hz
+Freq_min = 0.1; % Hz
+Freq_max = 100; % Hz
 Freq_num = 20;
 Voltage_gen = 1; % V
-Delta_limit = 0.1/100; % 1
-filename = "test_01_R.mat";
+Delta_limit = 0.005/100; % 1
+filename = "test_05_C.mat";
 
 % DEV INIT
 SR860 = SR860_dev(4);
@@ -38,7 +38,8 @@ try
     SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
     
     Voltage_gen_rms = Voltage_gen/sqrt(2);
-    Current_max = Voltage_gen/R_test;
+%     Current_max = Voltage_gen/R_test;
+    Current_max = 1e-7;
     freq_list = 10.^linspace(log10(Freq_min), log10(Freq_max), Freq_num);
     freq_list = flip(freq_list);
 
@@ -67,12 +68,20 @@ try
             SR860.set_time_constant(1.5*Period);
         end
         % -----------------------------------------------
-        adev_utils.Wait(Period*0.9);
+        adev_utils.Wait(Period*1);
 
         stable = false;
+        pause(0.1)
         [R_old, Phase_old] = SR860.data_get_R_and_Phase;
         while ~stable
-            [Amp, Phase] = SR860.data_get_R_and_Phase;
+            OK = false;
+            while ~OK
+                try
+                    [Amp, Phase] = SR860.data_get_R_and_Phase;
+                    OK = true;
+                catch
+                end
+            end
             Delta_R = (Amp - R_old)/Amp;
             Delta_Phase = (Phase - Phase_old)/Phase;
             R_old = Amp;
@@ -82,6 +91,7 @@ try
                 stable = true;
             end
             DISP_DELTA(Delta, Delta_limit, "%");
+            pause(0.05)
         end
         % -----------------------------------------------
         [Amp, Phase] = SR860.data_get_R_and_Phase;
