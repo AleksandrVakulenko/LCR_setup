@@ -10,9 +10,20 @@
 
 clc
 
+R_test = 1100; % Ohm
+
+Freq_min = 1; % Hz
+Freq_max = 1000; % Hz
+Freq_num = 20;
+Voltage_gen = 1; % V
+Delta_limit = 0.1/100; % 1
+filename = "test_01.mat";
+
+% DEV INIT
 SR860 = SR860_dev(4);
 Ammeter = K6517b_dev(27);
 
+% MAIN
 try
     SR860.set_advanced_filter("on");
     SR860.set_sync_filter('on');
@@ -25,20 +36,16 @@ try
     SR860.configure_input("VOLT");
     SR860.set_gen_config(0.001, 1e3);
     SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
-
-
-    Ammeter.config("current");
-    Sense = Ammeter.set_sensitivity(3.3e-4, "current");
-    Ammeter.enable_feedback("enable");
-    adev_utils.Wait(3);
-
-    Freq_min = 1; % Hz
-    Freq_max = 1000; % Hz
-    Freq_num = 20;
+    
+    Voltage_gen_rms = Voltage_gen/sqrt(2);
+    Current_max = Voltage_gen/R_test;
     freq_list = 10.^linspace(log10(Freq_min), log10(Freq_max), Freq_num);
     freq_list = flip(freq_list);
-    Voltage_gen = 1; % V
-    Delta_limit = 0.1/100; % 1
+
+    Ammeter.config("current");
+    Sense = Ammeter.set_sensitivity(Current_max*1.2, "current");
+    Ammeter.enable_feedback("enable");
+    adev_utils.Wait(3);
 
     figure('Position', [440 240 690 745]);
 
@@ -50,7 +57,7 @@ try
         time = toc(Timer);
 
         freq = freq_list(i);
-        SR860.set_gen_config(Voltage_gen, freq);
+        SR860.set_gen_config(Voltage_gen_rms, freq);
         Period = 1/freq;
         if Period <= 0.02 % FIXME: how to choose tc?
             SR860.set_time_constant(10*Period);
@@ -79,7 +86,7 @@ try
         % -----------------------------------------------
         [Amp, Phase] = SR860.data_get_R_and_Phase;
 
-        Amp = Amp*Sense;
+        Amp = Amp*Sense*sqrt(2);
 
         A_arr = [A_arr Amp];
         P_arr = [P_arr Phase];
@@ -97,14 +104,14 @@ try
 
         drawnow
     end
-
+% END MAIN
 catch ERR
     Ammeter.enable_feedback("disable");
     SR860.set_gen_config(0.001, 1e3);
     delete(SR860);
     delete(Ammeter);
     rethrow(ERR);
-end
+end 
 
 disp("Finished without errors")
 disp(['Time passed = ' num2str(time) ' s']);
@@ -113,7 +120,7 @@ Ammeter.enable_feedback("disable");
 delete(SR860);
 delete(Ammeter);
 
-
+save(filename, "A_arr", "P_arr", "F_arr", "Sense")
 
 
 
