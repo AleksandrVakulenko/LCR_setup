@@ -1,8 +1,9 @@
-function Tick_label = get_ticks_label(Ticks)
+function Tick_label = get_ticks_label_SI(Ticks)
 
 Tick_label = string.empty;
 for i = 1:numel(Ticks)
     Num = digits_count(Ticks(i), -inf);
+%     disp([num2str(Ticks(i), '%0.9f') ' ' num2str(Num)])
     if Num < 0
         Exp = fix(Num/3)*3;
     else
@@ -11,7 +12,7 @@ for i = 1:numel(Ticks)
 
     [Exp, Unit] = get_exp_unit(Exp);
 
-    Tick_label(i) = sprintf("%d%s", Ticks(i)*10^Exp, Unit);
+    Tick_label(i) = sprintf("%d%s", round(Ticks(i)*10^Exp), Unit);
 end
 end
 

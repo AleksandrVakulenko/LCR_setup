@@ -1,7 +1,7 @@
-function Ticks = gen_log_tick(Range, Mult)
+function Ticks = gen_log_tick(Range, Grid)
     arguments
         Range {mustBeNumeric(Range)}
-        Mult {mustBeNumeric(Mult)} = [1, 2, 5]
+        Grid {mustBeNumeric(Grid)} = [1, 2, 5]
     end
     
     Min = Range(1);
@@ -19,12 +19,12 @@ function Ticks = gen_log_tick(Range, Mult)
     Exp_end = ceil(log10(Max));
     Exp_range = Exp_start:Exp_end;
     
-    Ticks = zeros(1, numel(Mult)*numel(Exp_range));
+    Ticks = zeros(1, numel(Grid)*numel(Exp_range));
     k = 0;
     for i = Exp_range
-        for j = 1:numel(Mult)
+        for j = 1:numel(Grid)
             k = k + 1;
-            Ticks(k) = Mult(j)*10^i;
+            Ticks(k) = Grid(j)*10^i;
         end
     end
     Ticks(Ticks < Min) = [];

@@ -48,7 +48,7 @@ try
     Ammeter.enable_feedback("enable");
     adev_utils.Wait(3);
 
-    figure('Position', [440 240 690 745]);
+    Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
 
     A_arr = [];
     P_arr = [];
@@ -95,15 +95,7 @@ try
         P_arr = [P_arr Phase];
         F_arr = [F_arr freq];
 
-        subplot('Position', [0.093    0.568    0.85    0.40])
-        cla
-        plot(F_arr, A_arr, '-b');
-        FRA_plot_design(gca, freq_list, 'I, A')
-                
-        subplot('Position', [0.093    0.086    0.85    0.40])
-        cla
-        plot(F_arr, P_arr, '-b');
-        FRA_plot_design(gca, freq_list, 'Phase, deg')
+        Fig.replace(F_arr, A_arr, P_arr);
 
         drawnow
     end
