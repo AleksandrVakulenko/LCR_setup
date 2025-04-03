@@ -10,13 +10,13 @@
 
 clc
 
-R_test = 1100; % Ohm
+R_test = 1200; % Ohm
 
-Freq_min = 0.1; % Hz
-Freq_max = 100; % Hz
+Freq_min = 1; % Hz
+Freq_max = 1000; % Hz
 Freq_num = 20;
 Voltage_gen = 1; % V
-Delta_limit = 0.005/100; % 1
+Delta_limit = 50/1e6; % 1
 filename = "test_05_C.mat";
 
 % DEV INIT
@@ -38,8 +38,8 @@ try
     SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
     
     Voltage_gen_rms = Voltage_gen/sqrt(2);
-%     Current_max = Voltage_gen/R_test;
-    Current_max = 1e-7;
+    Current_max = Voltage_gen/R_test;
+%     Current_max = 1e-7;
     freq_list = 10.^linspace(log10(Freq_min), log10(Freq_max), Freq_num);
     freq_list = flip(freq_list);
 
@@ -71,17 +71,10 @@ try
         adev_utils.Wait(Period*1);
 
         stable = false;
-        pause(0.1)
-        [R_old, Phase_old] = SR860.data_get_R_and_Phase;
+        %pause(0.1)
+        [R_old, Phase_old] = data_get_R_and_Phase_wrapper(SR860);
         while ~stable
-            OK = false;
-            while ~OK
-                try
-                    [Amp, Phase] = SR860.data_get_R_and_Phase;
-                    OK = true;
-                catch
-                end
-            end
+            [Amp, Phase] = data_get_R_and_Phase_wrapper(SR860);
             Delta_R = (Amp - R_old)/Amp;
             Delta_Phase = (Phase - Phase_old)/Phase;
             R_old = Amp;
@@ -90,8 +83,8 @@ try
             if Delta < Delta_limit
                 stable = true;
             end
-            DISP_DELTA(Delta, Delta_limit, "%");
-            pause(0.05)
+            DISP_DELTA(Delta, Delta_limit, "ppm");
+            %pause(0.05)
         end
         % -----------------------------------------------
         [Amp, Phase] = SR860.data_get_R_and_Phase;
@@ -134,9 +127,25 @@ save(filename, "A_arr", "P_arr", "F_arr", "Sense")
 
 
 
+function [Amp, Phase] = data_get_R_and_Phase_wrapper(SR860)
+    OK = false;
+    while ~OK
+        try
+            [Amp, Phase] = SR860.data_get_R_and_Phase;
+            OK = true;
+        catch
+            try_to_read_error(SR860);
+        end
+    end
+end
 
 
-
-
+function try_to_read_error(SR860)
+    fprintf('\n\n>>>>>CATCH ERROR>>>>>\n\n');
+    ESR_struct = SR860.get_ESR;
+    disp(ESR_struct)
+    fprintf('<<<<<END CATCH ERROR<<<<<\n\n\n');
+%     pause(5)
+end
 
 
