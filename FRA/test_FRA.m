@@ -17,7 +17,7 @@ Freq_max = 1000; % Hz
 Freq_num = 20;
 Voltage_gen = 1; % V
 Delta_limit = 0.1/100; % 1
-filename = "test_01.mat";
+filename = "test_01_R.mat";
 
 % DEV INIT
 SR860 = SR860_dev(4);
@@ -73,7 +73,7 @@ try
         [R_old, Phase_old] = SR860.data_get_R_and_Phase;
         while ~stable
             [Amp, Phase] = SR860.data_get_R_and_Phase;
-            Delta_R = Amp - R_old/Amp;
+            Delta_R = (Amp - R_old)/Amp;
             Delta_Phase = (Phase - Phase_old)/Phase;
             R_old = Amp;
             Phase_old = Phase;
