@@ -56,12 +56,12 @@ classdef FRA_plot < handle
 
             axes(obj.axis_top)
             cla
-            plot(F_arr, A_arr, '-b');
+            plot(F_arr, A_arr, '.-b', 'MarkerSize', 8);
             FRA_plot_design(gca, obj.freq_list, obj.ylabel_top, obj.style)
 
             axes(obj.axis_bot)
             cla
-            plot(F_arr, P_arr, '-b');
+            plot(F_arr, P_arr, '.-b', 'MarkerSize', 8);
             FRA_plot_design(gca, obj.freq_list, obj.ylabel_bot, obj.style)
 
             drawnow
