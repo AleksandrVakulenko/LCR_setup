@@ -22,12 +22,16 @@ clc
 
 R_test = 1200; % Ohm
 
+Voltage_gen = 1; % V
+
 Freq_min = 1; % Hz
 Freq_max = 1000; % Hz
 Freq_num = 20;
 Freq_permutation = false;
-Voltage_gen = 1; % V
+
 Delta_limit = 50e-6;
+Stable_timeout = 10; % s
+Stable_init_num = 10;
 
 % Save filename gen
 file_num = file_num + 1;
@@ -83,7 +87,10 @@ try
         adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
         % Stable check part
-        Stable_checker = stable_check(SR860, Delta_limit, "ppm", "save", 10);
+        save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
+            'freq', freq, 'Wait_time', Wait_time, 'i', i);
+        Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
+            save_pack, Stable_init_num, Stable_timeout);
         while ~Stable_checker.test
             % wait
         end

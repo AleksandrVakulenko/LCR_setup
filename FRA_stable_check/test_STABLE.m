@@ -7,7 +7,9 @@ clc
 time = 0:0.05:10;
 X = 0.01*exp(-((time-3)/1).^2)+0.01;
 Y = -0.03*exp(-((time-5)/1).^2)+0.01;
-
+Stable_init_num = 10;
+Stable_timeout = 10; % s
+Delta_limit = 50e-6;
 
 figure
 hold on
@@ -16,7 +18,11 @@ plot(time, Y);
 
 SR860 = SR860_dummy(X, Y);
 
-Stable_checker = stable_check(SR860, 50e-6, "none", "save");
+save_pack = struct('comment', "test run", 'freq_list', [], ... 
+    'freq', -1, 'Wait_time', 0, 'i', 0);
+Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
+    save_pack, Stable_init_num, Stable_timeout);
+
 
 i = 0;
 % stable = Stable_checker.test;

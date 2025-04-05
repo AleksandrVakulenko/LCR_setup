@@ -43,8 +43,7 @@ classdef stable_check < handle
                     {mustBeGreaterThan(Delta_limit, 0)} = 50e-6 % 1
                 Disp_mode {mustBeMember(Disp_mode, ...
                     ["1", "%", "ppm", "none"])} = "ppm"
-                Data_save {mustBeMember(Data_save, ["save", "dont_save"])} ...
-                    = "dont_save"
+                Data_save = []
                 Init_num (1,1) double ...
                     {mustBeGreaterThanOrEqual(Init_num, 2)} = 10;
                 timeout_s (1,1) double ...
@@ -85,7 +84,7 @@ classdef stable_check < handle
             end
             
             % NOTE: debug zone:
-            if obj.Data_save == "save"
+            if ~isempty(obj.Data_save)
                 obj.Data.x = [obj.Data.x X];
                 obj.Data.y = [obj.Data.y Y];
                 obj.Data.time = [obj.Data.time time];
@@ -128,6 +127,7 @@ classdef stable_check < handle
             filename = obj.gen_save_filename;
             Stable_Data = obj.Data;
             Stable_Data.Delta_limit = obj.Delta_limit;
+            Stable_Data.pack = obj.Data_save;
             save(filename, 'Stable_Data');
         end
     end
