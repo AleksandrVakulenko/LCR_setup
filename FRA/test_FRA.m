@@ -4,10 +4,11 @@
 % Test for FRA measurement
 
 % ----TODO----:
-% 1) find error in date receive
-% 2) filter speed effect?
-% 3) sample ping
-% 4) auto-range
+% 1) sample ping
+% 2) auto-range
+% 3) stable condition (add plot)
+% 4) plot style
+
 % ------------
 
 
@@ -22,11 +23,11 @@ R_test = 1200; % Ohm
 Freq_min = 1; % Hz
 Freq_max = 1000; % Hz
 Freq_num = 20;
+Freq_permutation = false;
 Voltage_gen = 1; % V
 Delta_limit = 50/1e6;
 
-Read_mode = "new"; % "old" or "new"
-Wait_mode = "new";
+Read_mode = "new"; % FIXME: debug
 
 file_num = file_num + 1;
 filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
@@ -35,21 +36,22 @@ filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
 SR860 = SR860_dev(4);
 Ammeter = K6517b_dev(27);
 
-% MAIN
+% MAIN ------------------------------------------------------------------------
 try
     SR860_set_common_profile(SR860);
     SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
     SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
     
     Current_max = Voltage_gen/R_test;
-    %Current_max = 1e-7;
 
     Ammeter.config("current");
     Sense = Ammeter.set_sensitivity(Current_max*1.1, "current");
     Ammeter.enable_feedback("enable");
 
     [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
-%     freq_list = freq_list(randperm(length(freq_list)));
+    if Freq_permutation
+        freq_list = freq_list(randperm(length(freq_list)));
+    end
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
     
@@ -64,40 +66,23 @@ try
         SR860.set_gen_config(Voltage_gen_rms, freq);
         disp(' ')
         disp(['freq = ' num2str(freq) ' Hz'])
-%         pause(0.5);
+
+        Time_const = SR860.set_time_constant(0.1);
+
         Period = 1/freq;
-
-%         if Period <= 0.02 % FIXME: how to choose tc?
-%             Time_const = SR860.set_time_constant(15*Period);
-%         elseif Period <= 0.05
-%             Time_const = SR860.set_time_constant(6*Period);
-%         elseif Period <= 0.1
-%             Time_const = SR860.set_time_constant(3*Period);
-%         else
-%             Time_const = SR860.set_time_constant(1.5*Period);
-%         end
-
-        Time_const = SR860.set_time_constant(0.5);
-
-
         if Period <= 0.1 % FIXME: how to choose tc?
             Wait_time = 0.2;
         else
             Wait_time = 1.5*Period;
         end
-%         if Wait_time < 1
-%             Wait_time = 1;
-%         end
         % -----------------------------------------------
 
         adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
 
         stable = false;
-%         [R_old, Phase_old] = data_get_R_and_Phase_wrapper(SR860, Read_mode);
         R_old = inf;
         Phase_old = inf;
-        pause(0.05)
         Stable_timeout = Period;
         if Stable_timeout < 10
             Stable_timeout = 10;
@@ -118,7 +103,7 @@ try
                 disp('TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT')
                 stable = true;
             end
-%             pause(0.05)
+            % pause(0.05)
         end
         % -----------------------------------------------
 
@@ -132,15 +117,17 @@ try
         P_arr = [P_arr Phase];
         F_arr = [F_arr freq];
         
-        [F_arr, Perm] = sort(F_arr);
-        A_arr = A_arr(Perm);
-        P_arr = P_arr(Perm);
+        if Freq_permutation
+            [F_arr, Perm] = sort(F_arr);
+            A_arr = A_arr(Perm);
+            P_arr = P_arr(Perm);
+        end
 
         Fig.replace(F_arr, A_arr, P_arr);
 
         drawnow
     end
-% END MAIN
+% END MAIN --------------------------------------------------------------------
 catch ERR
     Ammeter.enable_feedback("disable");
     SR860.set_gen_config(0.001, 1e3);
@@ -192,7 +179,6 @@ function try_to_read_error(SR860)
     ESR_struct = SR860.get_ESR;
     disp(ESR_struct)
     fprintf('<<<<<END CATCH ERROR<<<<<\n\n\n');
-%     pause(5)
 end
 
 function [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num)
@@ -201,7 +187,6 @@ function [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num)
     periods = 1./freq_list;
     min_time = sum(periods);
 end
-
 
 function SR860_set_common_profile(SR860)
     SR860.configure_input("VOLT");
