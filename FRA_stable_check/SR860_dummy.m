@@ -23,7 +23,7 @@ methods
             X = NaN;
             Y = NaN;
         end
-        pause(0.02);
+%         pause(0.02);
     end
 end
 
