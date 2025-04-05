@@ -1,4 +1,21 @@
-
+% Date: 2025.04.05
+%
+% ----INFO----:
+% Class for check SR860 data stability.
+% works with two single_stable_check classes
+%   for X and Y outputs
+%
+% ----SETTINGS----:
+% 1) SR860_handle < handle to SR860
+% 2) Delta_limit < limit of relative stability (default: 50e-6)
+% 3) Disp_mode < "1", "%", "ppm", "none" (default: "ppm")
+% 4) Init_num < number of reads before start actual testing (default: 10)
+% 5) timeout_s < after this time stable is true (default: 10 [s])
+%
+% ----TODO----:
+% 1) add data storage for debug
+% 2) 
+% ------------
 
 classdef stable_check < handle
     properties (Access = private)
@@ -17,14 +34,13 @@ classdef stable_check < handle
             arguments
                 SR860_handle
                 Delta_limit (1,1) double ...
-                    {mustBeGreaterThan(Delta_limit, 0)} = 50/1e6 % 1
+                    {mustBeGreaterThan(Delta_limit, 0)} = 50e-6 % 1
                 Disp_mode {mustBeMember(Disp_mode, ...
                     ["1", "%", "ppm", "none"])} = "ppm"
                 Init_num (1,1) double ...
                     {mustBeGreaterThanOrEqual(Init_num, 2)} = 10;
                 timeout_s (1,1) double ...
                     {mustBeGreaterThan(timeout_s, 0)} = 10 % s
-
             end
             obj.SR860_handle = SR860_handle;
             obj.Timer = tic; % init self timer

@@ -17,14 +17,14 @@ SR860 = SR860_dummy(X, Y);
 
 Stable_checker = stable_check(SR860, 50e-6, "none");
 
-i = 1;
-stable = Stable_checker.test;
-while ~stable
+i = 0;
+% stable = Stable_checker.test;
+while ~Stable_checker.test
     i = i + 1;
     time_cut = time(1:i);
     X_cut = X(1:i);
     Y_cut = Y(1:i);
-    stable = Stable_checker.test;
+%     stable = Stable_checker.test;
     
     cla
     plot(time, X, '--r', 'LineWidth', 1);

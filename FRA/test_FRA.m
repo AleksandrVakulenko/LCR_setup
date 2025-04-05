@@ -6,8 +6,10 @@
 % ----TODO----:
 % 1) sample ping
 % 2) auto-range
-% 3) stable condition (add plot)
-% 4) plot style
+% 3) Sample info struct
+% 4) FRA settings struct save
+% 5) plot style
+% 6) FRA data type
 
 % ------------
 
@@ -25,10 +27,9 @@ Freq_max = 1000; % Hz
 Freq_num = 20;
 Freq_permutation = false;
 Voltage_gen = 1; % V
-Delta_limit = 50/1e6;
+Delta_limit = 50e-6;
 
-Read_mode = "new"; % FIXME: debug
-
+% Save filename gen
 file_num = file_num + 1;
 filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
 
@@ -67,47 +68,28 @@ try
         disp(' ')
         disp(['freq = ' num2str(freq) ' Hz'])
 
+        % TODO: could Tc be small in case of sync adaptive filter???
         Time_const = SR860.set_time_constant(0.1);
 
+        % -----------------------------------------------
         Period = 1/freq;
         if Period <= 0.1 % FIXME: how to choose tc?
             Wait_time = 0.2;
         else
             Wait_time = 1.5*Period;
         end
-        % -----------------------------------------------
-
+                
+        % Wait befor stable check
         adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
-
-        stable = false;
-        R_old = inf;
-        Phase_old = inf;
-        Stable_timeout = Period;
-        if Stable_timeout < 10
-            Stable_timeout = 10;
-        end
-        Stable_start_time = toc(Timer);
-        while ~stable
-            [Amp, Phase] = SR860.data_get_R_and_Phase;
-            Delta_R = (Amp - R_old)/Amp;
-            Delta_Phase = (Phase - Phase_old)/Phase;
-            R_old = Amp;
-            Phase_old = Phase;
-            Delta = abs(Delta_R) + abs(Delta_Phase);
-            if Delta < Delta_limit
-                stable = true;
-            end
-            DISP_DELTA(Delta, Delta_limit, "ppm");
-            if (toc(Timer) - Stable_start_time) > Stable_timeout
-                disp('TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT')
-                stable = true;
-            end
-            % pause(0.05)
+        % Stable check part
+        Stable_checker = stable_check(SR860, Delta_limit, "ppm", 10);
+        while ~Stable_checker.test
+            % wait
         end
         % -----------------------------------------------
 
-        [Amp, Phase] = SR860.data_get_R_and_Phase;
+        [Amp, Phase] = SR860.data_get_R_and_Phase();
         time = toc(Timer);
 
         Amp = Amp*Sense*sqrt(2);
@@ -153,34 +135,6 @@ save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense")
 
 %-------------------------------------------------------------------------------
 
-function [Amp, Phase] = data_get_R_and_Phase_wrapper(SR860, mode)
-arguments
-    SR860
-    mode {mustBeMember(mode, ["old", "new"])}
-end
-    OK = false;
-    while ~OK
-        try
-            [Amp, Phase] = SR860.data_get_R_and_Phase;
-            OK = true;
-        catch
-            if mode == "new"
-                try_to_read_error(SR860);
-            else
-                disp("CATCH ERROR !")
-            end
-        end
-    end
-end
-
-
-function try_to_read_error(SR860)
-    fprintf('\n\n>>>>>CATCH ERROR>>>>>\n\n');
-    ESR_struct = SR860.get_ESR;
-    disp(ESR_struct)
-    fprintf('<<<<<END CATCH ERROR<<<<<\n\n\n');
-end
-
 function [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num)
     freq_list = 10.^linspace(log10(Freq_min), log10(Freq_max), Freq_num);
     freq_list = flip(freq_list);
@@ -199,47 +153,6 @@ function SR860_set_common_profile(SR860)
     SR860.set_detector_phase(180); % NOTE: inv for K6517b
     SR860.set_gen_config(100e-6, 1e3); % NOTE: off
 end
-
-
-
-
-function status = stable_check(SR860, Period, Delta_limit, Timer)
-    
-    
-    stable = false;
-    X_old = inf;
-    Y_old = inf;
-    Stable_timeout = Period;
-    if Stable_timeout < 10
-        Stable_timeout = 10;
-    end
-    Stable_start_time = toc(Timer);
-    while ~stable
-        [X, Y] = SR860.data_get_XY();
-        Delta_R = (X - X_old)/X;
-        Delta_Phase = (Y - Y_old)/Y;
-        X_old = X;
-        Y_old = Y;
-        Delta = abs(Delta_R) + abs(Delta_Phase);
-        if Delta < Delta_limit
-            stable = true;
-        end
-        DISP_DELTA(Delta, Delta_limit, "ppm");
-        if (toc(Timer) - Stable_start_time) > Stable_timeout
-            disp('TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT')
-            stable = true;
-        end
-        
-    end
-    
-    
-end
-
-
-
-
-
-
 
 
 

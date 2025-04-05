@@ -1,7 +1,14 @@
-
-
-%TODO:
-% 1) replace array by single variables
+% Date: 2025.04.05
+%
+% ----INFO----:
+% Class for check single variable stability.
+%
+% ----SETTINGS----:
+% 1) Delta_limit < limit of relative stability
+% 2) Init_num < number of reads before start actual testing
+% 
+% ----TODO----:
+% ------------
 
 classdef single_stable_check < handle
     properties
@@ -13,7 +20,7 @@ classdef single_stable_check < handle
         Prev_v = NaN
     end
 
-    methods
+    methods (Access = public)
         function obj = single_stable_check(Init_num, Delta_limit)
             arguments
                 Init_num (1,1) double ...
@@ -49,10 +56,6 @@ classdef single_stable_check < handle
             end
 
 
-        end
-
-        function draw(obj)
-            plot(obj.array, 'LineWidth', 1);
         end
 
     end
