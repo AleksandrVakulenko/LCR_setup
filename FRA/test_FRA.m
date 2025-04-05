@@ -89,7 +89,7 @@ try
         end
         Stable_start_time = toc(Timer);
         while ~stable
-            [Amp, Phase] = data_get_R_and_Phase_wrapper(SR860, Read_mode);
+            [Amp, Phase] = SR860.data_get_R_and_Phase;
             Delta_R = (Amp - R_old)/Amp;
             Delta_Phase = (Phase - Phase_old)/Phase;
             R_old = Amp;
@@ -199,4 +199,47 @@ function SR860_set_common_profile(SR860)
     SR860.set_detector_phase(180); % NOTE: inv for K6517b
     SR860.set_gen_config(100e-6, 1e3); % NOTE: off
 end
+
+
+
+
+function status = stable_check(SR860, Period, Delta_limit, Timer)
+    
+    
+    stable = false;
+    X_old = inf;
+    Y_old = inf;
+    Stable_timeout = Period;
+    if Stable_timeout < 10
+        Stable_timeout = 10;
+    end
+    Stable_start_time = toc(Timer);
+    while ~stable
+        [X, Y] = SR860.data_get_XY();
+        Delta_R = (X - X_old)/X;
+        Delta_Phase = (Y - Y_old)/Y;
+        X_old = X;
+        Y_old = Y;
+        Delta = abs(Delta_R) + abs(Delta_Phase);
+        if Delta < Delta_limit
+            stable = true;
+        end
+        DISP_DELTA(Delta, Delta_limit, "ppm");
+        if (toc(Timer) - Stable_start_time) > Stable_timeout
+            disp('TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT')
+            stable = true;
+        end
+        
+    end
+    
+    
+end
+
+
+
+
+
+
+
+
 
