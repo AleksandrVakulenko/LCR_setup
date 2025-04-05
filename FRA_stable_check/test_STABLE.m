@@ -8,6 +8,7 @@ time = 0:0.05:10;
 X = 0.01*exp(-((time-3)/1).^2)+0.01;
 Y = -0.03*exp(-((time-5)/1).^2)+0.01;
 
+
 figure
 hold on
 plot(time, X);
@@ -15,7 +16,7 @@ plot(time, Y);
 
 SR860 = SR860_dummy(X, Y);
 
-Stable_checker = stable_check(SR860, 50e-6, "none");
+Stable_checker = stable_check(SR860, 50e-6, "none", "save");
 
 i = 0;
 % stable = Stable_checker.test;

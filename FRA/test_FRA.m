@@ -83,7 +83,7 @@ try
         adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
         % Stable check part
-        Stable_checker = stable_check(SR860, Delta_limit, "ppm", 10);
+        Stable_checker = stable_check(SR860, Delta_limit, "ppm", "save", 10);
         while ~Stable_checker.test
             % wait
         end
