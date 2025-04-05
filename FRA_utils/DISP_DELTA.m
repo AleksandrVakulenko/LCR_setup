@@ -15,5 +15,7 @@ function DISP_DELTA(Delta, Delta_limit, units)
     Delta = Delta * mult;
     Delta_limit = Delta_limit * mult;
     [~, Fmt] = digits_count(Delta_limit, 1);
-    disp(['Delta: ' num2str(Delta, Fmt) ' | ' num2str(Delta_limit, Fmt)]);
+    disp(['Delta: ' num2str(Delta, Fmt) ' | ' ...
+        num2str(Delta_limit, Fmt) ...
+        ' [' char(units) ']']);
 end

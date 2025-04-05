@@ -5,15 +5,19 @@
 
 classdef single_stable_check < handle
     properties
-        array
         Delta_limit
         Init_num
+        Num = 0
+        Max = -inf
+        Min = inf
+        Prev_v = NaN
     end
 
     methods
         function obj = single_stable_check(Init_num, Delta_limit)
             arguments
-                Init_num (1,1) double {mustBeGreaterThan(Init_num, 2)} = 10;
+                Init_num (1,1) double ...
+                    {mustBeGreaterThanOrEqual(Init_num, 2)} = 10;
                 Delta_limit (1,1) double ...
                     {mustBeGreaterThan(Delta_limit, 0)} = 50/1e6;
             end
@@ -22,24 +26,29 @@ classdef single_stable_check < handle
         end
 
         function [stable, Delta] = test(obj, v)
-            obj.array = [obj.array v];
-            if numel(obj.array) < 10 % FIXME
+            obj.Num = obj.Num + 1;
+            obj.update_max_min(v);
+
+            if obj.Num < obj.Init_num
                 stable = false;
                 Delta = inf;
-                return;
-            end
-            
-            Span = max(obj.array) - min(obj.array);
-            if Span ~= 0 
-                Delta = abs(obj.array(end-1) - obj.array(end))/Span;
             else
-                Delta = 0;
+                Span = obj.Max - obj.Min;
+                if Span ~= 0
+                    Delta = abs(obj.Prev_v - v)/Span;
+                else
+                    Delta = 0;
+                end
+                obj.Prev_v = v;
+
+                if Delta < obj.Delta_limit
+                    stable = true;
+                else
+                    stable = false;
+                end
             end
-            if Delta < obj.Delta_limit
-                stable = true;
-            else
-                stable = false;
-            end
+
+
         end
 
         function draw(obj)
@@ -48,6 +57,16 @@ classdef single_stable_check < handle
 
     end
 
+    methods (Access = private)
+        function update_max_min(obj, v)
+            if v > obj.Max
+                obj.Max = v;
+            end
+            if v < obj.Min
+                obj.Min = v;
+            end
+        end
+    end
 
 end
 
