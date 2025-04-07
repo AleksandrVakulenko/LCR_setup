@@ -65,7 +65,14 @@ classdef stable_check < handle
 
             [~, Delta_X] = obj.Single_check_X.test(X);
             [~, Delta_Y] = obj.Single_check_Y.test(Y);
-            Delta = abs(Delta_X) + abs(Delta_Y);
+            Delta0 = abs(Delta_X) + abs(Delta_Y);
+            Delta = abs(X)*abs(Delta_X) + abs(Y)*abs(Delta_Y);
+
+            disp(' ')
+            disp([num2str(X) '  ' num2str(Delta_X)])
+            disp([num2str(Y) '  ' num2str(Delta_Y)])
+            disp([num2str(Delta0) '  ' num2str(Delta)])
+            disp(' ')
 
             if Delta < obj.Delta_limit
                 stable = true;

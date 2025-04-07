@@ -29,7 +29,7 @@ Freq_max = 1000; % Hz
 Freq_num = 20;
 Freq_permutation = false;
 
-Delta_limit = 50e-6;
+Delta_limit = 100e-6;
 Stable_timeout = 10; % s
 Stable_init_num = 10;
 
@@ -74,18 +74,18 @@ try
         disp(['freq = ' num2str(freq) ' Hz'])
 
         % TODO: could Tc be small in case of sync adaptive filter???
-%         Time_const = SR860.set_time_constant(0.1);
-        Time_const = SR860.set_time_constant(Period*10);
+        Time_const = SR860.set_time_constant(0.25);
+%         Time_const = SR860.set_time_constant(Period*10);
         % -----------------------------------------------
         
         if Period <= 0.1 % FIXME: how to choose tc?
             Wait_time = 0.2;
         else
-            Wait_time = 1.5*Period;
+            Wait_time = 0.9*Period;
         end
                 
         % Wait befor stable check
-        %adev_utils.Wait(Wait_time, 'Wait one Wait_time');
+        adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
         % Stable check part
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 

@@ -18,6 +18,10 @@ classdef single_stable_check < handle
         Max = -inf
         Min = inf
         Prev_v = NaN
+        Array = [];
+        Time = [];
+        Timer
+        Time_interval = 1; % s
     end
 
     methods (Access = public)
@@ -30,23 +34,30 @@ classdef single_stable_check < handle
             end
             obj.Init_num = Init_num;
             obj.Delta_limit = Delta_limit;
+            obj.Timer = tic;
         end
 
         function [stable, Delta] = test(obj, v)
             obj.Num = obj.Num + 1;
             obj.update_max_min(v);
+            
+            time = toc(obj.Timer);
+            obj.Time = [obj.Time time];
+            obj.Array = [obj.Array v];
+
 
             if obj.Num < obj.Init_num
                 stable = false;
                 Delta = inf;
             else
-                Span = obj.Max - obj.Min;
-                if Span ~= 0
-                    Delta = abs(obj.Prev_v - v)/Span;
-                else
-                    Delta = 0;
-                end
-                obj.Prev_v = v;
+                range = obj.Time >= (obj.Time(end) - obj.Time_interval);
+                Array_part = obj.Array(range);
+                MM = minmax(Array_part);
+                Span = MM(2) - MM(1);
+                Mean = mean(Array_part);
+                
+                Delta = Span/Mean;
+%                 disp([num2str(Span) '   ' num2str(Mean) '   ' num2str(Delta)])
 
                 if Delta < obj.Delta_limit
                     stable = true;
