@@ -1,11 +1,17 @@
 
-function fig = plot_stable_graph(Data, fig)
+
+
+
+
+
+function fig = plot_stable_graph(Data, fig, mode)
 arguments
     Data
     fig = []
+    mode {mustBeMember(mode, ["XY", "RPhi"])} = "XY"
 end
 if isempty(fig)
-    fig = figure('Position', [440 240 690 745], 'Resize', 'on');
+    fig = figure('Position', [485   134   690   904], 'Resize', 'on');
 else
     figure(fig);
 end
@@ -18,16 +24,33 @@ Delta_Y = Data.delta_y;
 Delta = Data.delta;
 Delta_limit = Data.Delta_limit;
 
-subplot('Position', [0.093    0.568    0.85    0.40])
+if mode == "RPhi"
+R = sqrt(X.^2 + Y.^2);
+Phi = atan2(X, Y)/pi*180;
+    V1 = R;
+    V2 = Phi;
+else
+    V1 = X;
+    V2 = Y;
+end
+
+subplot('Position', [0.0930    0.750    0.850    0.215])
 cla
 hold on
 box on
 grid on
-plot(time, X, '.-r', 'LineWidth', 1.5, 'MarkerSize', 10)
-plot(time, Y, '.-b', 'LineWidth', 1.5, 'MarkerSize', 10)
+plot(time, V1, '.-b', 'LineWidth', 1.5, 'MarkerSize', 10)
 Xlim = get(gca, 'xlim');
 
-subplot('Position', [0.093    0.086    0.85    0.40])
+subplot('Position', [0.0930    0.493    0.850    0.215])
+cla
+hold on
+box on
+grid on
+plot(time, V2, '.-r', 'LineWidth', 1.5, 'MarkerSize', 10)
+Xlim = get(gca, 'xlim');
+
+subplot('Position', [0.0930    0.1156    0.8500    0.3200])
 cla
 hold on
 box on
