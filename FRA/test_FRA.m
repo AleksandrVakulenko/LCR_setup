@@ -26,7 +26,7 @@ Voltage_gen = 1; % V
 
 Freq_min = 0.1; % Hz
 Freq_max = 1000; % Hz
-Freq_num = 15;
+Freq_num = 20;
 Freq_permutation = false;
 
 Delta_limit = 100e-6;
@@ -88,10 +88,30 @@ try
         adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
         % Stable check part
+        if Period < 1
+            Stable_Time_interval = Period;
+        elseif Period > 10
+            Stable_Time_interval = Period/10;
+        elseif Period > 20
+            Stable_Time_interval = Period/20;
+        elseif Period > 100
+            Stable_Time_interval = Period/50;
+        else
+            Stable_Time_interval = 1;
+        end
+        if Stable_Time_interval < 0.1
+            Stable_Time_interval = 0.1;
+        end
+
+        Stable_timeout_internal = Stable_timeout;
+        if Stable_timeout_internal < Period
+            Stable_timeout_internal = 1*Period;
+        end
+
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
             'freq', freq, 'Wait_time', Wait_time, 'i', i);
         Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
-            save_pack, Stable_init_num, Stable_timeout);
+            save_pack, Stable_Time_interval, Stable_init_num, Stable_timeout_internal);
         while ~Stable_checker.test
             % wait
         end
@@ -99,7 +119,7 @@ try
 
         [Amp, Phase] = SR860.data_get_R_and_Phase();
         time = toc(Timer);
-
+        
         Amp = Amp*Sense*sqrt(2);
 
         Time_arr = [Time_arr time];
@@ -128,8 +148,10 @@ catch ERR
 end 
 
 disp("Finished without errors")
-disp(['Time passed = ' num2str(Time_arr(end)) ' s']);
+Time_passed = Time_arr(end);
+disp(['Time passed = ' num2str(Time_passed) ' s']);
 disp(['Minimum time = ' num2str(min_time) ' s']);
+disp([num2str(Time_passed/min_time, '%0.2f') '[%]']);
 
 
 Ammeter.enable_feedback("disable");
