@@ -24,9 +24,9 @@ R_test = 1200; % Ohm
 
 Voltage_gen = 1; % V
 
-Freq_min = 1; % Hz
+Freq_min = 0.1; % Hz
 Freq_max = 1000; % Hz
-Freq_num = 20;
+Freq_num = 15;
 Freq_permutation = false;
 
 Delta_limit = 100e-6;
@@ -81,7 +81,7 @@ try
         if Period <= 0.1 % FIXME: how to choose tc?
             Wait_time = 0.2;
         else
-            Wait_time = 0.9*Period;
+            Wait_time = 0.5*Period;
         end
                 
         % Wait befor stable check

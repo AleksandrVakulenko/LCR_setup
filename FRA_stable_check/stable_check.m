@@ -68,11 +68,11 @@ classdef stable_check < handle
             Delta0 = abs(Delta_X) + abs(Delta_Y);
             Delta = abs(X)*abs(Delta_X) + abs(Y)*abs(Delta_Y);
 
-            disp(' ')
-            disp([num2str(X) '  ' num2str(Delta_X)])
-            disp([num2str(Y) '  ' num2str(Delta_Y)])
-            disp([num2str(Delta0) '  ' num2str(Delta)])
-            disp(' ')
+%             disp(' ')
+%             disp([num2str(X) '  ' num2str(Delta_X)])
+%             disp([num2str(Y) '  ' num2str(Delta_Y)])
+%             disp([num2str(Delta0) '  ' num2str(Delta)])
+%             disp(' ')
 
             if Delta < obj.Delta_limit
                 stable = true;
