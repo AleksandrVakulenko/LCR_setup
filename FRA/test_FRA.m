@@ -68,15 +68,16 @@ try
     Timer = tic;
     for i = 1:numel(freq_list)
         freq = freq_list(i);
+        Period = 1/freq;
         SR860.set_gen_config(Voltage_gen_rms, freq);
         disp(' ')
         disp(['freq = ' num2str(freq) ' Hz'])
 
         % TODO: could Tc be small in case of sync adaptive filter???
-        Time_const = SR860.set_time_constant(0.1);
-
+%         Time_const = SR860.set_time_constant(0.1);
+        Time_const = SR860.set_time_constant(Period*10);
         % -----------------------------------------------
-        Period = 1/freq;
+        
         if Period <= 0.1 % FIXME: how to choose tc?
             Wait_time = 0.2;
         else
@@ -84,7 +85,7 @@ try
         end
                 
         % Wait befor stable check
-        adev_utils.Wait(Wait_time, 'Wait one Wait_time');
+        %adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
         % Stable check part
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 

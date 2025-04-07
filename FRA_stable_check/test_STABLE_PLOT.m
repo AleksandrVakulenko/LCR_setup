@@ -1,7 +1,7 @@
 
 clc
 
-folder = 'Debug_stable_data/';
+folder = '../FRA/Debug_stable_data/';
 names_out = find_stable_data_files(folder);
 
 fig = [];
@@ -10,7 +10,7 @@ load(names_out(i).full_path);
 
 fig = plot_stable_graph(Stable_Data, fig);
 
-pause(0.5)
+pause(0.2)
 end
 
 
