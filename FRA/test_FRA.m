@@ -1,4 +1,4 @@
-% Date: 2025.04.02
+% Date: 2025.04.07
 %
 % ----INFO----:
 % Test for FRA measurement
@@ -15,7 +15,7 @@
 
 
 %%
-file_num = 0;
+file_num = 21;
 
 %%
 clc
@@ -33,6 +33,8 @@ Delta_limit = 100e-6;
 Stable_timeout = 10; % s
 Stable_init_num = 10;
 
+Lockin_Tc = 0.25;
+
 % Save filename gen
 file_num = file_num + 1;
 filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
@@ -44,7 +46,6 @@ Ammeter = K6517b_dev(27);
 % MAIN ------------------------------------------------------------------------
 try
     SR860_set_common_profile(SR860);
-    SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
     SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
     
     Current_max = Voltage_gen/R_test;
@@ -68,50 +69,36 @@ try
     Timer = tic;
     for i = 1:numel(freq_list)
         freq = freq_list(i);
-        Period = 1/freq;
-        SR860.set_gen_config(Voltage_gen_rms, freq);
         disp(' ')
         disp(['freq = ' num2str(freq) ' Hz'])
 
+        %---Lock_in SET------------------------
+        SR860.set_gen_config(Voltage_gen_rms, freq);
         % TODO: could Tc be small in case of sync adaptive filter???
-        Time_const = SR860.set_time_constant(0.25);
-%         Time_const = SR860.set_time_constant(Period*10);
-        % -----------------------------------------------
-        
-        if Period <= 0.1 % FIXME: how to choose tc?
-            Wait_time = 0.2;
-        else
-            Wait_time = 0.5*Period;
-        end
+        Time_const = SR860.set_time_constant(Lockin_Tc);
+        %-------------------------------------
+
+
+        %---TIMES-----------------------------
+        Period = 1/freq;
+        %-------------------------------------
+        Times_conf.Period = Period;
+        Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
+        Times_conf.Wait_fraction_of_period = 0.8; % [1]
+        Times_conf.Min_number_of_stable_intervals = 3; % [1]
+        Times_conf.Wait_min = 0.1; % [s]
+        Times_conf.Stable_interval_min = 0.2; % [s]
+        %-------------------------------------
+        [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
+        %-------------------------------------
                 
         % Wait befor stable check
         adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
-        % Stable check part
-        if Period < 1
-            Stable_Time_interval = Period;
-        elseif Period > 10
-            Stable_Time_interval = Period/10;
-        elseif Period > 20
-            Stable_Time_interval = Period/20;
-        elseif Period > 100
-            Stable_Time_interval = Period/50;
-        else
-            Stable_Time_interval = 1;
-        end
-        if Stable_Time_interval < 0.1
-            Stable_Time_interval = 0.1;
-        end
-
-        Stable_timeout_internal = Stable_timeout;
-        if Stable_timeout_internal < Period
-            Stable_timeout_internal = 1*Period;
-        end
-
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
             'freq', freq, 'Wait_time', Wait_time, 'i', i);
         Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
-            save_pack, Stable_Time_interval, Stable_init_num, Stable_timeout_internal);
+            save_pack, Stable_Time_interval, Stable_init_num, Stable_timeout);
         while ~Stable_checker.test
             % wait
         end
@@ -165,12 +152,6 @@ save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense")
 
 %-------------------------------------------------------------------------------
 
-function [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num)
-    freq_list = 10.^linspace(log10(Freq_min), log10(Freq_max), Freq_num);
-    freq_list = flip(freq_list);
-    periods = 1./freq_list;
-    min_time = sum(periods);
-end
 
 function SR860_set_common_profile(SR860)
     SR860.configure_input("VOLT");
@@ -179,6 +160,7 @@ function SR860_set_common_profile(SR860)
     SR860.set_expand(1, "XYR");
     SR860.set_sync_src("INT");
     SR860.set_harm_num(1);
+    SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
     SR860.set_voltage_input_range(1);
     SR860.set_detector_phase(180); % NOTE: inv for K6517b
     SR860.set_gen_config(100e-6, 1e3); % NOTE: off
