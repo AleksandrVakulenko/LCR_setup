@@ -89,7 +89,7 @@ classdef stable_check < handle
             end
 
             if time > obj.Stable_timeout
-                disp('Stable_check TIMEOUT:')
+                disp('Stable_check TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT:')
                 DISP_DELTA(Delta, obj.Delta_limit, 'ppm');
                 stable = true;
             end

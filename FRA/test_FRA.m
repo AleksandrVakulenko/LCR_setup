@@ -30,9 +30,6 @@ Freq_num = 20;
 Freq_permutation = false;
 
 Delta_limit = 100e-6;
-Stable_timeout = 10; % s
-Stable_init_num = 10;
-
 Lockin_Tc = 0.25;
 
 % Save filename gen
@@ -51,7 +48,7 @@ try
     Current_max = Voltage_gen/R_test;
 
     Ammeter.config("current");
-    Sense = Ammeter.set_sensitivity(Current_max*1.1, "current");
+    Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
     Ammeter.enable_feedback("enable");
 
     [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
@@ -61,7 +58,7 @@ try
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
     
-    Voltage_gen_rms = Voltage_gen/sqrt(2);
+    
     Time_arr = [];
     A_arr = [];
     P_arr = [];
@@ -72,42 +69,12 @@ try
         disp(' ')
         disp(['freq = ' num2str(freq) ' Hz'])
 
-        %---Lock_in SET------------------------
-        SR860.set_gen_config(Voltage_gen_rms, freq);
-        % TODO: could Tc be small in case of sync adaptive filter???
-        Time_const = SR860.set_time_constant(Lockin_Tc);
-        %-------------------------------------
-
-
-        %---TIMES-----------------------------
-        Period = 1/freq;
-        %-------------------------------------
-        Times_conf.Period = Period;
-        Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
-        Times_conf.Wait_fraction_of_period = 0.8; % [1]
-        Times_conf.Min_number_of_stable_intervals = 3; % [1]
-        Times_conf.Wait_min = 0.1; % [s]
-        Times_conf.Stable_interval_min = 0.2; % [s]
-        %-------------------------------------
-        [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
-        %-------------------------------------
-                
-        % Wait befor stable check
-        adev_utils.Wait(Wait_time, 'Wait one Wait_time');
-
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
-            'freq', freq, 'Wait_time', Wait_time, 'i', i);
-        Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
-            save_pack, Stable_Time_interval, Stable_init_num, Stable_timeout);
-        while ~Stable_checker.test
-            % wait
-        end
-        % -----------------------------------------------
-
-        [Amp, Phase] = SR860.data_get_R_and_Phase();
+        'freq', freq, 'Wait_time', Wait_time, 'i', i);
+        [Amp, Phase] = Lock_in_measure(SR860, ...
+            Voltage_gen, freq, Sense_V2C, Lockin_Tc, ...
+            Delta_limit, save_pack);
         time = toc(Timer);
-        
-        Amp = Amp*Sense*sqrt(2);
 
         Time_arr = [Time_arr time];
         A_arr = [A_arr Amp];
@@ -145,12 +112,52 @@ Ammeter.enable_feedback("disable");
 delete(SR860);
 delete(Ammeter);
 
-save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense")
+save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
 
 
 
 
 %-------------------------------------------------------------------------------
+
+
+function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
+    Sense, Lockin_Tc, Delta_limit, save_pack)
+
+    %---Lock_in SET------------------------
+    Voltage_gen_rms = Voltage_gen/sqrt(2);
+    SR860.set_gen_config(Voltage_gen_rms, freq);
+    % TODO: could Tc be small in case of sync adaptive filter???
+    SR860.set_time_constant(Lockin_Tc);
+    %-------------------------------------
+
+    %---TIMES-----------------------------
+    Period = 1/freq;
+    %-------------------------------------
+    Times_conf.Period = Period;
+    Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
+    Times_conf.Wait_fraction_of_period = 0.8; % [1]
+    Times_conf.Min_number_of_stable_intervals = 3; % [1]
+    Times_conf.Wait_min = 0.1; % [s]
+    Times_conf.Stable_interval_min = 0.2; % [s]
+    %-------------------------------------
+    [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
+    %-------------------------------------
+            
+    % Wait befor stable check
+    adev_utils.Wait(Wait_time, 'Wait one Wait_time');
+
+    Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
+        save_pack, Stable_Time_interval, 10, Stable_timeout);
+
+    while ~Stable_checker.test
+        % nothing to do here
+    end
+    % -----------------------------------------------
+
+    [Amp, Phase] = SR860.data_get_R_and_Phase();
+    Amp = Amp*Sense*sqrt(2);
+end
+
 
 
 function SR860_set_common_profile(SR860)
