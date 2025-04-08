@@ -13,7 +13,7 @@ Lockin_Tc = 0.25;
 
 [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
 
-
+Max_time_array = [];
 Wait_time_array = [];
 Stable_Time_array = [];
 Stable_timeout_array = [];
@@ -31,7 +31,7 @@ for i = 1:numel(freq_list)
     Times_conf.Wait_min = 0.1; % [s]
     Times_conf.Stable_interval_min = 0.2; % [s]
     %-------------------------------------
-    [Wait_time, Stable_interval, Stable_timeout] = Times_calc(Times_conf);
+    [Wait_time, Stable_interval, Stable_timeout, Max_meas_time] = Times_calc(Times_conf);
     %-------------------------------------
 
     
@@ -39,6 +39,7 @@ for i = 1:numel(freq_list)
     Wait_time_array = [Wait_time_array Wait_time];
     Stable_Time_array = [Stable_Time_array Stable_interval];
     Stable_timeout_array = [Stable_timeout_array Stable_timeout];
+    Max_time_array = [Max_time_array Max_meas_time];
 end
 
 
@@ -50,8 +51,9 @@ P(2) = yline(Lockin_Tc, '-.', "DisplayName", 'Lock-in Tc');
 P(3) = plot(1./freq_list, Stable_timeout_array, '-g', 'LineWidth', 1.5, "DisplayName", 'Timeout');
 P(4) = plot(1./freq_list, Stable_Time_array, '-r', 'LineWidth', 1.5, 'DisplayName', 'Stable');
 P(5) = plot(1./freq_list, Wait_time_array, '-b', 'LineWidth', 1.5, 'DisplayName', 'Wait');
-P(6) = plot(1./freq_list, Wait_time_array+Stable_timeout_array, '--m', 'LineWidth', 1.5);
+P(6) = plot(1./freq_list, Wait_time_array+Stable_timeout_array, '-m', 'LineWidth', 1.5);
 % P(6) = plot(1./freq_list, Stable_timeout_array./Stable_Time_array, '--m', 'LineWidth', 1.5);
+P(7) = plot(1./freq_list, Max_time_array, '--k', 'LineWidth', 1.5);
 
 
 set(gca, 'xscale', 'log')

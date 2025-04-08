@@ -1,4 +1,4 @@
-function [Wait_time, Stable_interval, Stable_timeout] = Times_calc(Times_conf)
+function [Wait_time, Stable_interval, Stable_timeout, Max_meas_time] = Times_calc(Times_conf)
 Period = Times_conf.Period;
 Max_meas_time_fop = Times_conf.Max_meas_time_fraction_of_period; % [1]
 Wait_fop = Times_conf.Wait_fraction_of_period; % [1]

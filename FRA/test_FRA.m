@@ -21,7 +21,7 @@ file_num = 21;
 clc
 
 R_test = 1200; % Ohm
-
+save_files_flag = false;
 Voltage_gen = 1; % V
 
 Freq_min = 0.1; % Hz
@@ -111,9 +111,9 @@ disp([num2str(Time_passed/min_time, '%0.2f') '[%]']);
 Ammeter.enable_feedback("disable");
 delete(SR860);
 delete(Ammeter);
-
+if save_files_flag
 save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
-
+end
 
 
 
