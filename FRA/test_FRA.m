@@ -5,12 +5,12 @@
 
 % ----TODO----:
 % 1) sample ping (in progress)
-% 2) FRA data type (in progress)
+% 2) auto-range (in progress)
 % 3) FRA settings struct
-% 4) auto-range (in progress)
-% 5) plot style
-% 6) 
-% 7) Sample info struct
+% 4) plot style
+% 5) 
+% 6) Sample info struct
+% 7) 
 
 % ------------
 
@@ -31,8 +31,9 @@ Freq_max = 10000; % Hz
 Freq_num = 30;
 Freq_permutation = false;
 
-Delta_limit = 100e-6;
+Disp_corr_version = false;
 
+Delta_limit = 100e-6;
 save_files_flag = false;
 save_stable_data = false;
 
@@ -93,7 +94,11 @@ try
         Data.add(freq, "R", Amp, "Phi", Phase);
 
         Data_corr = Data.correction();
-        Fig.replace_FRA_data(Data_corr);
+        if Disp_corr_version
+            Fig.replace_FRA_data(Data_corr);
+        else
+            Fig.replace_FRA_data(Data);
+        end
 
     end
 % END MAIN --------------------------------------------------------------------
