@@ -92,7 +92,8 @@ try
         Time_arr(i) = time;
         Data.add(freq, "R", Amp, "Phi", Phase);
 
-        Fig.replace_FRA_data(Data);
+        Data_corr = Data.correction();
+        Fig.replace_FRA_data(Data_corr);
 
     end
 % END MAIN --------------------------------------------------------------------

@@ -40,7 +40,7 @@ Bode_abs = @(num, den, f) abs(Bode_cplx(num, den, f));
 Bode_phi = @(num, den, f) angle(Bode_cplx(num, den, f))*180/pi;
 
 
-[vout] = fit_fra_test(F_arr, A_arr, P_arr);
+[vout] = fit_fra_tf(F_arr, A_arr, P_arr);
 
 A_model = Bode_abs(vout(1:3), vout(4:6), F_arr);
 Phi_model = Bode_phi(vout(1:3), vout(4:6), F_arr);
@@ -99,6 +99,34 @@ plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
 set(gca, 'xscale', 'log')
 % set(gca, 'xscale', 'log')
 
+%% NEW NEW NEW CORRECTION with FRA_data class
+
+
+
+Data_exp = FRA_data('V', F_arr, 'R', A_arr, 'Phi', P_arr);
+Data_diff = Data_exp.correction();
+[F_model, A_corr, Phi_corr] = Data_diff.RPhi;
+
+figure('Position', [412 157 737 775])
+subplot(2, 1, 1)
+hold on
+% plot(F_arr, A_arr, '-r', 'LineWidth', 2)
+% plot(F_model, A_model, '-k', 'LineWidth', 1)
+% plot(F_arr, A_arr-A_model, '-r', 'LineWidth', 1)
+plot(F_arr, A_corr, '--g', 'LineWidth', 1)
+set(gca, 'xscale', 'log')
+% set(gca, 'yscale', 'log')
+xlim([0.01 100])
+
+subplot(2, 1, 2)
+hold on
+% plot(F_arr, P_arr, '-r', 'LineWidth', 2)
+% plot(F_model, Phi_model, '-k', 'LineWidth', 1)
+% plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
+plot(F_arr, Phi_corr, '--g', 'LineWidth', 1)
+set(gca, 'xscale', 'log')
+xlim([0.01 100])
+% set(gca, 'xscale', 'log')
 
 
 %%
@@ -146,7 +174,7 @@ end
 
 
 
-function [vout] = fit_fra_test(F_arr, A_arr, P_arr)
+function [vout] = fit_fra_tf(F_arr, A_arr, P_arr)
 
 BS = @(f) (1i*2*pi*f);
 Bode_cplx = @(num, den, f) (num(1) + num(2)*BS(f) + num(3)*BS(f).^2)./...
