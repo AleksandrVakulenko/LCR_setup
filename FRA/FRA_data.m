@@ -3,20 +3,23 @@
 
 classdef FRA_data < handle
     properties
+        unit
         freq = []
         X = []
         Y = []
     end
 
     methods (Access = public)
-        function obj = FRA_data(freq, data)
+        function obj = FRA_data(unit, freq, data)
             arguments
+                unit {mustBeTextScalar};
                 freq {mustBeNumeric(freq), mustBeGreaterThan(freq, 0)} = []
                 data.R {mustBeNumeric(data.R)} = []
                 data.Phi {mustBeNumeric(data.Phi)} = []
                 data.X {mustBeNumeric(data.X)} = []
                 data.Y {mustBeNumeric(data.Y)} = []
             end
+            obj.unit = unit;
             if ~isempty(freq)
                 obj.add(freq, 'R', data.R, 'Phi', data.Phi, ...
                     'X', data.X, 'Y', data.Y);
@@ -68,7 +71,7 @@ classdef FRA_data < handle
         function [freq, R, Phi] = RPhi(obj)
             freq = obj.freq;
             R = sqrt(obj.X.^2 + obj.Y.^2);
-            Phi = atan2(obj.Y, obj.X);
+            Phi = atan2(obj.Y, obj.X)*180/pi;
             Phi = phase_shift_correction(Phi);
         end
     end
@@ -90,27 +93,6 @@ end
 
 
 
-function P_arr = phase_shift_correction(P_arr)
-D_P_Arr = diff(P_arr);
-range_p = D_P_Arr > 180;
-range_n = D_P_Arr < -180;
 
-range_p = [false range_p];
-range_n = [false range_n];
-
-Phase_shift_array = zeros(size(P_arr));
-Phase_shift = 0;
-for i = 1:numel(range_p)
-    if range_p(i)
-        Phase_shift = Phase_shift - 360;
-    end
-    if range_n(i)
-        Phase_shift = Phase_shift + 360;
-    end
-    Phase_shift_array(i) = Phase_shift;
-end
-
-P_arr = P_arr + Phase_shift_array;
-end
 
 

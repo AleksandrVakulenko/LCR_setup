@@ -67,6 +67,11 @@ classdef FRA_plot < handle
             drawnow
         end
 
+        function replace_FRA_data(obj, Data)
+            [F_arr, A_arr, P_arr] = Data.RPhi;
+            obj.replace(F_arr, A_arr, P_arr);
+        end
+
     end
 
 end

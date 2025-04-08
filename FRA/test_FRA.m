@@ -1,15 +1,16 @@
-% Date: 2025.04.07
+% Date: 2025.04.08
 %
 % ----INFO----:
 % Test for FRA measurement
 
 % ----TODO----:
-% 1) sample ping
-% 2) auto-range
-% 3) Sample info struct
-% 4) FRA settings struct save
+% 1) sample ping (in progress)
+% 2) FRA data type (in progress)
+% 3) FRA settings struct
+% 4) auto-range (in progress)
 % 5) plot style
-% 6) FRA data type
+% 6) 
+% 7) Sample info struct
 
 % ------------
 
@@ -47,10 +48,8 @@ Ammeter = K6517b_dev(27);
 
 % MAIN ------------------------------------------------------------------------
 try
-    SR860.RESET();
     SR860_set_common_profile(SR860);
-    
-    
+        
     Current_max = Voltage_gen/R_test;
 
     Ammeter.config("current");
@@ -62,21 +61,16 @@ try
 %     freq_list = [freq_list1 freq_list2];
 %     min_time = min_time1 + min_time2;
 
-    [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
-
-    if Freq_permutation
-        freq_list = freq_list(randperm(length(freq_list)));
-    end
+    [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, ...
+        Freq_num, Freq_permutation);
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
     
     find_best_sense(SR860, Voltage_gen);
     pause(1.5);
     
-    Time_arr = [];
-    A_arr = [];
-    P_arr = [];
-    F_arr = [];
+    Time_arr = zeros(size(freq_list));
+    Data = FRA_data('I, [A]');
     Timer = tic;
     for i = 1:numel(freq_list)
         freq = freq_list(i);
@@ -88,28 +82,18 @@ try
         if ~save_stable_data
             save_pack = [];
         end
-        %
+        
         [Amp, Phase] = Lock_in_measure(SR860, ...
             Voltage_gen, freq, Delta_limit, save_pack);
-%
-        time = toc(Timer);
 
         Amp = Amp*Sense_V2C*sqrt(2);
+        time = toc(Timer);
 
-        Time_arr = [Time_arr time];
-        A_arr = [A_arr Amp];
-        P_arr = [P_arr Phase];
-        F_arr = [F_arr freq];
-        
-        if Freq_permutation
-            [F_arr, Perm] = sort(F_arr);
-            A_arr = A_arr(Perm);
-            P_arr = P_arr(Perm);
-        end
+        Time_arr(i) = time;
+        Data.add(freq, "R", Amp, "Phi", Phase);
 
-        Fig.replace(F_arr, A_arr, P_arr);
+        Fig.replace_FRA_data(Data);
 
-        drawnow
     end
 % END MAIN --------------------------------------------------------------------
 catch ERR
@@ -133,6 +117,7 @@ delete(SR860);
 delete(Ammeter);
 
 if save_files_flag
+    [F_arr, A_arr, P_arr] = Data.RPhi;
     save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
 end
 
@@ -201,6 +186,7 @@ end
 
 
 function SR860_set_common_profile(SR860)
+    SR860.RESET();
     SR860.configure_input("VOLT");
     SR860.set_advanced_filter("on");
     SR860.set_sync_filter('on');
