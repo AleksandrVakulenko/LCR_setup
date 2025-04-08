@@ -4,7 +4,7 @@
 % A = 0.00074812, fc = 1617.29 Hz, d = 1.46
 clc
 
-filename = 'test_results/test_08_R.mat';
+filename = 'test_results/test_12_R.mat';
 
 load(filename);
 
@@ -58,8 +58,8 @@ Y_arr = A_arr .* sind(P_arr);
 model = @(v) [(Bode_real(v(1), v(2), v(3), v(4), F_arr) - X_arr)./1,...
               (Bode_imag(v(1), v(2), v(3), v(4), F_arr) - Y_arr)./90 ];      
 
-Lower = [  0.9      0.5    0.5    0.5];
-Start = [  1        1000   1000   1000];
+Lower = [  0.9      0.5      0.5     0.5];
+Start = [  1        500     5000    5000];
 Upper = [  1.1      100e3   100e3   100e3];
 
 
@@ -118,23 +118,24 @@ set(gca, 'xscale', 'log')
 
 F_model = 10.^linspace(log10(0.1), log10(10e3), 1000);
 
-A_model = Bode_abs(A, fc, d, F_model);
-Phi_model = Bode_phi(A, fc, d, F_model);
+A_model = Bode_abs(A, fc1, fc2, fc3, F_arr);
+Phi_model = Bode_phi(A, fc1, fc2, fc3, F_arr);
+Phi_model = phase_shift_correction(Phi_model);
 
 figure('Position', [412 157 737 775])
 subplot(2, 1, 1)
 hold on
-plot(F_arr, A_arr, '-r', 'LineWidth', 2)
-plot(F_model, A_model, '-k', 'LineWidth', 1)
-% plot(F_arr, A_arr-A_model, '-r', 'LineWidth', 1)
+% plot(F_arr, A_arr, '-r', 'LineWidth', 2)
+% plot(F_model, A_model, '-k', 'LineWidth', 1)
+plot(F_arr, A_arr-A_model, '-r', 'LineWidth', 1)
 set(gca, 'xscale', 'log')
-set(gca, 'yscale', 'log')
+% set(gca, 'yscale', 'log')
 
 subplot(2, 1, 2)
 hold on
-plot(F_arr, P_arr, '-r', 'LineWidth', 2)
-plot(F_model, Phi_model, '-k', 'LineWidth', 1)
-% plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
+% plot(F_arr, P_arr, '-r', 'LineWidth', 2)
+% plot(F_model, Phi_model, '-k', 'LineWidth', 1)
+plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
 set(gca, 'xscale', 'log')
 % set(gca, 'xscale', 'log')
 

@@ -9,7 +9,7 @@ names_out = find_stable_data_files(folder);
 clc
 
 fig = [];
-for i = 258:275%1:numel(names_out)
+for i = numel(names_out)-73
 load(names_out(i).full_path);
 
 N = Stable_Data.pack.i;

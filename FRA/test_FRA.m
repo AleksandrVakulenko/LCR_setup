@@ -23,7 +23,7 @@ clc
 R_test = 1200; % Ohm
 
 
-Voltage_gen = 1; % V
+Voltage_gen = 1.8; % V
 
 Freq_min = 0.1; % Hz
 Freq_max = 1000; % Hz
@@ -33,6 +33,7 @@ Freq_permutation = false;
 Delta_limit = 100e-6;
 Lockin_Tc = 0.25;
 save_files_flag = true;
+save_stable_data = false;
 
 
 if save_files_flag
@@ -55,8 +56,8 @@ try
     Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
     Ammeter.enable_feedback("enable");
 
-    [freq_list1, min_time1] = freq_list_gen(0.5, 20e3, 70);
-    [freq_list2, min_time2] = freq_list_gen(0.05, 0.4, 8);
+    [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
+    [freq_list2, min_time2] = freq_list_gen(0.1, 0.4, 8);
     freq_list = [freq_list1 freq_list2];
     min_time = min_time1 + min_time2;
 
@@ -81,6 +82,9 @@ try
 
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
         'freq', freq, 'Wait_time', Wait_time, 'i', i);
+        if ~save_stable_data
+            save_pack = [];
+        end
         [Amp, Phase] = Lock_in_measure(SR860, ...
             Voltage_gen, freq, Lockin_Tc, ...
             Delta_limit, save_pack);
