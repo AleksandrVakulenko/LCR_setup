@@ -1,3 +1,4 @@
+% FIXME: need refactor of functions struct
 
 
 classdef FRA_plot < handle

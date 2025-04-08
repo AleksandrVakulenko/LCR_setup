@@ -3,6 +3,7 @@
 % TODO: place into SR860
 
 clc
+error('OLD VERSION')
 
 time = 0:0.05:10;
 X = 0.01*exp(-((time-3)/1).^2)+0.01;

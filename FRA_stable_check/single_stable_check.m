@@ -53,13 +53,20 @@ classdef single_stable_check < handle
                 Delta = inf;
             else
                 range = obj.Time >= (obj.Time(end) - obj.Time_interval);
-                Array_part = obj.Array(range);
-                MM = minmax(Array_part);
-                Span = MM(2) - MM(1);
-                Mean = mean(Array_part);
-                
-                Delta = Span/Mean;
-%                 disp([num2str(Span) '   ' num2str(Mean) '   ' num2str(Delta)])
+                Need_points = 20*obj.Time_interval; % fixme: magic constant
+                if numel(find(range)) > Need_points
+                    Array_part = obj.Array(range);
+                    obj.Array(~range) = [];
+                    MM = minmax(Array_part);
+                    Span = MM(2) - MM(1);
+                    Mean = mean(Array_part);
+
+                    Delta = Span/Mean; % FIXME: bad part, need change
+%                     disp([num2str(Span) '   ' num2str(Mean) '   ' num2str(Delta)])
+                else
+                    Delta = NaN;
+                end
+
 
                 if Delta < obj.Delta_limit
                     stable = true;
