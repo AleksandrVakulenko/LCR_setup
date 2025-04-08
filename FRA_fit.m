@@ -4,7 +4,7 @@
 % A = 0.00074812, fc = 1617.29 Hz, d = 1.46
 clc
 
-filename = 'test_results/test_12_R.mat';
+filename = 'test_results5/test_12_R.mat';
 
 load(filename);
 
@@ -37,14 +37,30 @@ clc
 % Bode_abs = @(A, fc, d, f) abs(Bode_cplx(A, fc, d, f));
 % Bode_phi = @(A, fc, d, f) angle(Bode_cplx(A, fc, d, f))*180/pi;
 
-% DOUBLE POLE (DIFFERENT fc)
+% % TRIPLE POLE (DIFFERENT fc)
+% BS = @(f) (1i*2*pi*f);
+% Bode_cplxSP = @(fc, f) (2*pi*fc)./(2*pi*fc+1i*2*pi*f);
+% Bode_cplx = @(A, fc1, fc2, fc3, f) A*(Bode_cplxSP(fc1, f) .* Bode_cplxSP(fc2, f) .* Bode_cplxSP(fc3, f));
+% Bode_real = @(A, fc1, fc2, fc3, f) real(Bode_cplx(A, fc1, fc2, fc3, f));
+% Bode_imag = @(A, fc1, fc2, fc3, f) imag(Bode_cplx(A, fc1, fc2, fc3, f));
+% Bode_abs = @(A, fc1, fc2, fc3, f) abs(Bode_cplx(A, fc1, fc2, fc3, f));
+% Bode_phi = @(A, fc1, fc2, fc3, f) angle(Bode_cplx(A, fc1, fc2, fc3, f))*180/pi;
+
+% QUAD POLE (DIFFERENT fc)
 BS = @(f) (1i*2*pi*f);
 Bode_cplxSP = @(fc, f) (2*pi*fc)./(2*pi*fc+1i*2*pi*f);
-Bode_cplx = @(A, fc1, fc2, fc3, f) A*(Bode_cplxSP(fc1, f) .* Bode_cplxSP(fc2, f) .* Bode_cplxSP(fc3, f));
-Bode_real = @(A, fc1, fc2, fc3, f) real(Bode_cplx(A, fc1, fc2, fc3, f));
-Bode_imag = @(A, fc1, fc2, fc3, f) imag(Bode_cplx(A, fc1, fc2, fc3, f));
-Bode_abs = @(A, fc1, fc2, fc3, f) abs(Bode_cplx(A, fc1, fc2, fc3, f));
-Bode_phi = @(A, fc1, fc2, fc3, f) angle(Bode_cplx(A, fc1, fc2, fc3, f))*180/pi;
+Bode_cplxSPSZ = @(fc, f) (2*pi*fc)*(1i*2*pi*f)./(2*pi*fc+1i*2*pi*f);
+Bode_cplx = @(A, fc1, fc2, fc3, fc4, f) A*(Bode_cplxSP(fc1, f) .* ...
+    Bode_cplxSP(fc2, f) .* Bode_cplxSP(fc3, f) .* ...
+    Bode_cplxSP(fc4, f) .* Bode_cplxSP(fc4, f));
+Bode_real = @(A, fc1, fc2, fc3, fc4, f) ...
+    real(Bode_cplx(A, fc1, fc2, fc3, fc4, f));
+Bode_imag = @(A, fc1, fc2, fc3, fc4, f) ...
+    imag(Bode_cplx(A, fc1, fc2, fc3, fc4, f));
+Bode_abs = @(A, fc1, fc2, fc3, fc4, f) ...
+    abs(Bode_cplx(A, fc1, fc2, fc3, fc4, f));
+Bode_phi = @(A, fc1, fc2, fc3, fc4, f) ...
+    angle(Bode_cplx(A, fc1, fc2, fc3, fc4, f))*180/pi;
 
 Mult_A = max(A_arr);
 A_arr = A_arr/Mult_A;
@@ -55,21 +71,25 @@ A_arr = A_arr/Mult_A;
 X_arr = A_arr .* cosd(P_arr);
 Y_arr = A_arr .* sind(P_arr);
 
-model = @(v) [(Bode_real(v(1), v(2), v(3), v(4), F_arr) - X_arr)./1,...
-              (Bode_imag(v(1), v(2), v(3), v(4), F_arr) - Y_arr)./90 ];      
+weight = ones(size(F_arr));
+range = F_arr > 1000;
+weight(range) = 1;
 
-Lower = [  0.9      0.5      0.5     0.5];
-Start = [  1        500     5000    5000];
-Upper = [  1.1      100e3   100e3   100e3];
+model = @(v) [(Bode_real(v(1), v(2), v(3), v(4), v(5), F_arr) - X_arr)./1.*weight,...
+              (Bode_imag(v(1), v(2), v(3), v(4), v(5), F_arr) - Y_arr)./90.*weight ];      
+
+Lower = [  0.9      0.5      100     1000     10000];
+Start = [  1        600     6000    15000    50000];
+Upper = [  1.1      10e3   10e3   100e3   100e3];
 
 
 options = optimoptions('lsqnonlin', ...
     'FiniteDifferenceType','central', ...
     'MaxFunctionEvaluations', 8000, ...
-    'FunctionTolerance', 1E-15, ...
+    'FunctionTolerance', 1E-12, ...
     'Algorithm','trust-region-reflective', ... %levenberg-marquardt trust-region-reflective
     'MaxIterations', 5000, ...
-    'StepTolerance', 1e-17, ...
+    'StepTolerance', 1e-12, ...
     'PlotFcn', '', ... %optimplotresnorm optimplotstepsize OR ''  (for none)
     'Display', 'iter', ... %final off iter
     'FiniteDifferenceStepSize', 1e-12, ...
@@ -87,10 +107,11 @@ A = vout(1)*Mult_A;
 fc1 = vout(2);
 fc2 = vout(3);
 fc3 = vout(4);
+fc4 = vout(5);
 % d = vout(3); % filter damping factor
 
-A_model = Bode_abs(A, fc1, fc2, fc3, F_arr);
-Phi_model = Bode_phi(A, fc1, fc2, fc3, F_arr);
+A_model = Bode_abs(A, fc1, fc2, fc3, fc4, F_arr);
+Phi_model = Bode_phi(A, fc1, fc2, fc3, fc4, F_arr);
 Phi_model = phase_shift_correction(Phi_model);
 
 % disp(['A = ' num2str(A), ', fc = ' num2str(fc, '%0.2f') ' Hz, d = ' num2str(d, '%0.2f')])
@@ -111,15 +132,24 @@ plot(F_arr, Phi_model, '-k', 'LineWidth', 1)
 % plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
 set(gca, 'xscale', 'log')
 
+figure('Position', [412 157 737 775])
+subplot(2, 1, 1)
+hold on
+plot(F_arr, A_arr-A_model, '-r', 'LineWidth', 1)
+set(gca, 'xscale', 'log')
 
+subplot(2, 1, 2)
+hold on
+plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
+set(gca, 'xscale', 'log')
 
 %%
 
 
 F_model = 10.^linspace(log10(0.1), log10(10e3), 1000);
 
-A_model = Bode_abs(A, fc1, fc2, fc3, F_arr);
-Phi_model = Bode_phi(A, fc1, fc2, fc3, F_arr);
+A_model = Bode_abs(A, fc1, fc2, fc3, fc4, F_arr);
+Phi_model = Bode_phi(A, fc1, fc2, fc3, fc4, F_arr);
 Phi_model = phase_shift_correction(Phi_model);
 
 figure('Position', [412 157 737 775])
