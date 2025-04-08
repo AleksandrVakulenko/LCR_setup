@@ -105,6 +105,7 @@ plot(F_arr, A_arr, '-r', 'LineWidth', 2)
 plot(F_model, A_model, '-k', 'LineWidth', 1)
 % plot(F_arr, A_arr-A_model, '-r', 'LineWidth', 1)
 set(gca, 'xscale', 'log')
+set(gca, 'yscale', 'log')
 
 subplot(2, 1, 2)
 hold on
@@ -112,7 +113,7 @@ plot(F_arr, P_arr, '-r', 'LineWidth', 2)
 plot(F_model, Phi_model, '-k', 'LineWidth', 1)
 % plot(F_arr, P_arr-Phi_model, '-r', 'LineWidth', 1)
 set(gca, 'xscale', 'log')
-
+% set(gca, 'xscale', 'log')
 
 
 

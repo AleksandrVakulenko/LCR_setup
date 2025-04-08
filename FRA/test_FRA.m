@@ -21,7 +21,8 @@ file_num = 0;
 clc
 
 R_test = 1200; % Ohm
-save_files_flag = false;
+
+
 Voltage_gen = 1; % V
 
 Freq_min = 0.1; % Hz
@@ -31,10 +32,13 @@ Freq_permutation = false;
 
 Delta_limit = 100e-6;
 Lockin_Tc = 0.25;
+save_files_flag = true;
 
-% Save filename gen
-file_num = file_num + 1;
-filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
+
+if save_files_flag
+    file_num = file_num + 1;
+    filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
+end
 
 % DEV INIT
 SR860 = SR860_dev(4);
@@ -51,8 +55,8 @@ try
     Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
     Ammeter.enable_feedback("enable");
 
-    [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
-    [freq_list2, min_time2] = freq_list_gen(0.05, 0.4, 10);
+    [freq_list1, min_time1] = freq_list_gen(0.5, 20e3, 70);
+    [freq_list2, min_time2] = freq_list_gen(0.05, 0.4, 8);
     freq_list = [freq_list1 freq_list2];
     min_time = min_time1 + min_time2;
 
@@ -78,9 +82,12 @@ try
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
         'freq', freq, 'Wait_time', Wait_time, 'i', i);
         [Amp, Phase] = Lock_in_measure(SR860, ...
-            Voltage_gen, freq, Sense_V2C, Lockin_Tc, ...
+            Voltage_gen, freq, Lockin_Tc, ...
             Delta_limit, save_pack);
+
         time = toc(Timer);
+
+        Amp = Amp*Sense_V2C*sqrt(2);
 
         Time_arr = [Time_arr time];
         A_arr = [A_arr Amp];
@@ -117,8 +124,9 @@ disp(['ratio: ' num2str(Time_passed/min_time, '%0.2f')]);
 Ammeter.enable_feedback("disable");
 delete(SR860);
 delete(Ammeter);
+
 if save_files_flag
-save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
+    save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
 end
 
 
@@ -127,7 +135,7 @@ end
 
 
 function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
-    Sense, Lockin_Tc, Delta_limit, save_pack)
+    Lockin_Tc, Delta_limit, save_pack)
 
     %---Lock_in SET------------------------
     Voltage_gen_rms = Voltage_gen/sqrt(2);
@@ -161,7 +169,6 @@ function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
     % -----------------------------------------------
 
     [Amp, Phase] = SR860.data_get_R_and_Phase();
-    Amp = Amp*Sense*sqrt(2);
 end
 
 
