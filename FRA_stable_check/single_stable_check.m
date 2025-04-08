@@ -21,20 +21,22 @@ classdef single_stable_check < handle
         Array = [];
         Time = [];
         Timer
-        Time_interval = 1; % s
+        Time_interval
     end
 
     methods (Access = public)
-        function obj = single_stable_check(Init_num, Delta_limit)
+        function obj = single_stable_check(Init_num, Delta_limit, Time_interval)
             arguments
                 Init_num (1,1) double ...
                     {mustBeGreaterThanOrEqual(Init_num, 2)} = 10;
                 Delta_limit (1,1) double ...
                     {mustBeGreaterThan(Delta_limit, 0)} = 50/1e6;
+                Time_interval = 1; % s
             end
             obj.Init_num = Init_num;
             obj.Delta_limit = Delta_limit;
             obj.Timer = tic;
+            obj.Time_interval = Time_interval;
         end
 
         function [stable, Delta] = test(obj, v)

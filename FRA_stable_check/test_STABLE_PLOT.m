@@ -9,13 +9,14 @@ names_out = find_stable_data_files(folder);
 clc
 
 fig = [];
-for i = 1:numel(names_out)
+for i = 258:275%1:numel(names_out)
 load(names_out(i).full_path);
 
 N = Stable_Data.pack.i;
+freq = Stable_Data.pack.freq;
 
 fig = plot_stable_graph(Stable_Data, fig);
-title(num2str(N))
+title([num2str(N) ' | ' num2str(freq) ' Hz'])
 num2str(N)
 end
 
@@ -25,7 +26,7 @@ end
 clc
 
 fig = [];
-i = 17;
+i = 20;
 load(names_out(i).full_path);
 
 N = Stable_Data.pack.i;
@@ -38,7 +39,7 @@ title([num2str(N) ' | ' num2str(freq) ' Hz'])
 %%
 clc
 
-i = 27;
+i = 275;
 load(names_out(i).full_path);
 
 time = Stable_Data.time;

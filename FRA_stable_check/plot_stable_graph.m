@@ -11,7 +11,7 @@ arguments
     mode {mustBeMember(mode, ["XY", "RPhi"])} = "XY"
 end
 if isempty(fig)
-    fig = figure('Position', [485   134   690   904], 'Resize', 'on');
+    fig = figure('Position', [485   54   690   904], 'Resize', 'on');
 else
     figure(fig);
 end
@@ -60,10 +60,10 @@ plot(time, Delta_Y, '--b', 'LineWidth', 1.5)
 plot(time, Delta, '-k', 'LineWidth', 1.5)
 yline(Delta_limit, '-k')
 
-set(gca, 'yscale', 'log')
-Ylim = get(gca, 'ylim');
-Ylim(1) = Delta_limit*0.1;
-set(gca, 'ylim', Ylim);
+% set(gca, 'yscale', 'log')
+% Ylim = get(gca, 'ylim');
+% Ylim(1) = Delta_limit*0.1;
+% set(gca, 'ylim', Ylim);
 set(gca, 'xlim', Xlim);
 
 end

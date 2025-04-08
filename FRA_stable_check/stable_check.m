@@ -36,7 +36,7 @@ classdef stable_check < handle
 
     methods (Access = public)
         function obj = stable_check(SR860_handle, Delta_limit, Disp_mode, ...
-                Data_save, Init_num, timeout_s)
+                Data_save, Time_interval, Init_num, timeout_s)
             arguments
                 SR860_handle
                 Delta_limit (1,1) double ...
@@ -44,10 +44,14 @@ classdef stable_check < handle
                 Disp_mode {mustBeMember(Disp_mode, ...
                     ["1", "%", "ppm", "none"])} = "ppm"
                 Data_save = []
+                Time_interval = 1; % s
                 Init_num (1,1) double ...
                     {mustBeGreaterThanOrEqual(Init_num, 2)} = 10;
                 timeout_s (1,1) double ...
                     {mustBeGreaterThan(timeout_s, 0)} = 10 % s
+            end
+            if timeout_s < Time_interval
+                timeout_s = Time_interval*2;
             end
             obj.SR860_handle = SR860_handle;
             obj.Timer = tic; % init self timer
@@ -55,8 +59,8 @@ classdef stable_check < handle
             obj.Disp_mode = Disp_mode;
             obj.Stable_timeout = timeout_s;
             obj.Data_save = Data_save;
-            obj.Single_check_X = single_stable_check(Init_num, Delta_limit);
-            obj.Single_check_Y = single_stable_check(Init_num, Delta_limit);
+            obj.Single_check_X = single_stable_check(Init_num, Delta_limit, Time_interval);
+            obj.Single_check_Y = single_stable_check(Init_num, Delta_limit, Time_interval);
         end
 
         function stable = test(obj)
@@ -85,7 +89,7 @@ classdef stable_check < handle
             end
 
             if time > obj.Stable_timeout
-                disp('Stable_check TIMEOUT:')
+                disp('Stable_check TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT:')
                 DISP_DELTA(Delta, obj.Delta_limit, 'ppm');
                 stable = true;
             end
