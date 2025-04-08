@@ -23,16 +23,16 @@ clc
 R_test = 1200; % Ohm
 
 
-Voltage_gen = 1.8; % V
+Voltage_gen = 0.01; % V
 
-Freq_min = 0.1; % Hz
-Freq_max = 1000; % Hz
-Freq_num = 20;
+Freq_min = 1; % Hz
+Freq_max = 10000; % Hz
+Freq_num = 30;
 Freq_permutation = false;
 
 Delta_limit = 100e-6;
-Lockin_Tc = 0.25;
-save_files_flag = true;
+
+save_files_flag = false;
 save_stable_data = false;
 
 
@@ -47,8 +47,9 @@ Ammeter = K6517b_dev(27);
 
 % MAIN ------------------------------------------------------------------------
 try
+    SR860.RESET();
     SR860_set_common_profile(SR860);
-    SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
+    
     
     Current_max = Voltage_gen/R_test;
 
@@ -56,12 +57,12 @@ try
     Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
     Ammeter.enable_feedback("enable");
 
-    [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
-    [freq_list2, min_time2] = freq_list_gen(0.1, 0.4, 8);
-    freq_list = [freq_list1 freq_list2];
-    min_time = min_time1 + min_time2;
+%     [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
+%     [freq_list2, min_time2] = freq_list_gen(0.1, 0.4, 8);
+%     freq_list = [freq_list1 freq_list2];
+%     min_time = min_time1 + min_time2;
 
-%     [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
+    [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
 
     if Freq_permutation
         freq_list = freq_list(randperm(length(freq_list)));
@@ -69,6 +70,8 @@ try
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
     
+    find_best_sense(SR860, Voltage_gen);
+    pause(1.5);
     
     Time_arr = [];
     A_arr = [];
@@ -81,14 +84,14 @@ try
         disp(['freq = ' num2str(freq) ' Hz'])
 
         save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
-        'freq', freq, 'Wait_time', Wait_time, 'i', i);
+        'freq', freq, 'i', i);
         if ~save_stable_data
             save_pack = [];
         end
+        %
         [Amp, Phase] = Lock_in_measure(SR860, ...
-            Voltage_gen, freq, Lockin_Tc, ...
-            Delta_limit, save_pack);
-
+            Voltage_gen, freq, Delta_limit, save_pack);
+%
         time = toc(Timer);
 
         Amp = Amp*Sense_V2C*sqrt(2);
@@ -137,9 +140,29 @@ end
 
 %-------------------------------------------------------------------------------
 
+function find_best_sense(SR860, Voltage_gen)
+    Delta_limit = 200e-6; 
+
+    freq = 10;
+
+    SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
+    [Amp, ~] = Lock_in_measure(SR860, ...
+    Voltage_gen, freq, Delta_limit, []);
+
+    Amp = Amp*1.2;
+
+    SR860.set_sensitivity(Amp, "voltage");
+
+%     disp(['Amp = ' num2str(Amp) ' V'])
+end
+
+
+
 
 function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
-    Lockin_Tc, Delta_limit, save_pack)
+    Delta_limit, save_pack)
+
+    Lockin_Tc = 0.25; % FIXME
 
     %---Lock_in SET------------------------
     Voltage_gen_rms = Voltage_gen/sqrt(2);
