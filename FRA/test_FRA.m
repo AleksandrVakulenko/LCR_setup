@@ -15,7 +15,7 @@
 
 
 %%
-file_num = 21;
+file_num = 0;
 
 %%
 clc
@@ -51,7 +51,13 @@ try
     Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
     Ammeter.enable_feedback("enable");
 
-    [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
+    [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
+    [freq_list2, min_time2] = freq_list_gen(0.05, 0.4, 10);
+    freq_list = [freq_list1 freq_list2];
+    min_time = min_time1 + min_time2;
+
+%     [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
+
     if Freq_permutation
         freq_list = freq_list(randperm(length(freq_list)));
     end
@@ -105,7 +111,7 @@ disp("Finished without errors")
 Time_passed = Time_arr(end);
 disp(['Time passed = ' num2str(Time_passed) ' s']);
 disp(['Minimum time = ' num2str(min_time) ' s']);
-disp([num2str(Time_passed/min_time, '%0.2f') '[%]']);
+disp(['ratio: ' num2str(Time_passed/min_time, '%0.2f')]);
 
 
 Ammeter.enable_feedback("disable");
@@ -137,8 +143,8 @@ function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
     Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
     Times_conf.Wait_fraction_of_period = 0.8; % [1]
     Times_conf.Min_number_of_stable_intervals = 3; % [1]
-    Times_conf.Wait_min = 0.1; % [s]
-    Times_conf.Stable_interval_min = 0.2; % [s]
+    Times_conf.Wait_min = 0.15; % [s]
+    Times_conf.Stable_interval_min = 0.5; % [s]
     %-------------------------------------
     [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
     %-------------------------------------
