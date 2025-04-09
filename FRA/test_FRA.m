@@ -26,15 +26,15 @@ R_test = 1200; % Ohm
 
 Voltage_gen = 1.8; % V
 
-Freq_min = 1; % Hz
-Freq_max = 2000; % Hz
+Freq_min = 0.1; % Hz
+Freq_max = 200; % Hz
 Freq_num = 30;
 Freq_permutation = false;
 
 Disp_corr_version = false;
 
-Delta_limit = 100e-6;
-save_files_flag = false;
+Delta_limit = 50e-6;
+save_files_flag = true;
 save_stable_data = false;
 
 
@@ -88,6 +88,7 @@ try
             Voltage_gen, freq, Delta_limit, save_pack);
 
         Amp = Amp*Sense_V2C*sqrt(2);
+%         Amp = Voltage_gen./Amp;
         time = toc(Timer);
 
         Time_arr(i) = time;
