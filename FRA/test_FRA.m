@@ -16,7 +16,7 @@
 
 
 %%
-file_num = 0;
+file_num = 11;
 
 %%
 clc
@@ -24,11 +24,11 @@ clc
 R_test = 1200; % Ohm
 
 
-Voltage_gen = 1.8; % V
+Voltage_gen = 1.0; % V
 
-Freq_min = 0.1; % Hz
-Freq_max = 200; % Hz
-Freq_num = 30;
+Freq_min = 0.05; % Hz
+Freq_max = 200e3; % Hz
+Freq_num = 60;
 Freq_permutation = false;
 
 Disp_corr_version = false;
@@ -45,7 +45,7 @@ end
 
 % DEV INIT
 SR860 = SR860_dev(4);
-Ammeter = K6517b_dev(27);
+% Ammeter = K6517b_dev(27);
 
 % MAIN ------------------------------------------------------------------------
 try
@@ -53,9 +53,10 @@ try
         
     Current_max = Voltage_gen/R_test;
 
-    Ammeter.config("current");
-    Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
-    Ammeter.enable_feedback("enable");
+%     Ammeter.config("current");
+%     Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
+      Sense_V2C = 1/1e3;
+%     Ammeter.enable_feedback("enable");
 
 %     [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
 %     [freq_list2, min_time2] = freq_list_gen(0.1, 0.4, 8);
@@ -104,10 +105,10 @@ try
     end
 % END MAIN --------------------------------------------------------------------
 catch ERR
-    Ammeter.enable_feedback("disable");
+%     Ammeter.enable_feedback("disable");
     SR860.set_gen_config(0.001, 1e3);
     delete(SR860);
-    delete(Ammeter);
+%     delete(Ammeter);
     disp('Call Destructors');
     rethrow(ERR);
 end 
@@ -119,9 +120,9 @@ disp(['Minimum time = ' num2str(min_time) ' s']);
 disp(['ratio: ' num2str(Time_passed/min_time, '%0.2f')]);
 
 
-Ammeter.enable_feedback("disable");
+% Ammeter.enable_feedback("disable");
 delete(SR860);
-delete(Ammeter);
+% delete(Ammeter);
 
 if save_files_flag
     [F_arr, A_arr, P_arr] = Data.RPhi;
@@ -202,7 +203,8 @@ function SR860_set_common_profile(SR860)
     SR860.set_harm_num(1);
     SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
     SR860.set_voltage_input_range(1);
-    SR860.set_detector_phase(180); % NOTE: inv for K6517b
+%     SR860.set_detector_phase(180); % NOTE: inv for K6517b
+    SR860.set_detector_phase(0); % NOTE: non-inv for DLPCA-200
     SR860.set_gen_config(100e-6, 1e3); % NOTE: off
 end
 
