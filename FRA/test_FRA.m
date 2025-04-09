@@ -24,10 +24,10 @@ clc
 R_test = 1200; % Ohm
 
 
-Voltage_gen = 0.01; % V
+Voltage_gen = 1.8; % V
 
 Freq_min = 1; % Hz
-Freq_max = 10000; % Hz
+Freq_max = 2000; % Hz
 Freq_num = 30;
 Freq_permutation = false;
 
@@ -68,8 +68,8 @@ try
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
     
     find_best_sense(SR860, Voltage_gen);
-    pause(1.5);
     
+
     Time_arr = zeros(size(freq_list));
     Data = FRA_data('I, [A]');
     Timer = tic;
