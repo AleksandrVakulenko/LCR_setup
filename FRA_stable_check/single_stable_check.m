@@ -56,18 +56,25 @@ classdef single_stable_check < handle
                 Need_points = 20*obj.Time_interval; % fixme: magic constant
                 if numel(find(range)) > Need_points
                     Array_part = obj.Array(range);
+                    obj.Time(~range) = [];
                     obj.Array(~range) = [];
                     MM = minmax(Array_part);
                     Span = MM(2) - MM(1);
                     Mean = mean(Array_part);
                     Full_span = obj.Max - obj.Min;
 
-                    Delta = Span/Mean; % FIXME: bad part, need change
+%                     Delta = Span/Mean; % FIXME: bad part, need change
 %                     Delta = Span/Full_span; % NOTE: new method
-                    disp(['Span: ' num2str(Span) ' | ' ...
-                        'FSpan:' num2str(Full_span) ' | ' ...
-                        'Mean: ' num2str(Mean) ' | ' ...
-                        'Delta: ' num2str(Delta)])
+                    if abs(Full_span) > abs(Mean)
+                        Den = Full_span;
+                    else
+                        Den = Mean;
+                    end
+                    Delta = Span/Den;
+%                     disp(['Span: ' num2str(Span) ' | ' ...
+%                         'FSpan:' num2str(Full_span) ' | ' ...
+%                         'Mean: ' num2str(Mean) ' | ' ...
+%                         'Delta: ' num2str(Delta)])
                 else
                     Delta = NaN;
                 end
