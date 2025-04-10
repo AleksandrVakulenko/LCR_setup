@@ -17,7 +17,7 @@
 
 
 %%
-file_num = 11;
+file_num = 1;
 
 %%
 clc
@@ -26,9 +26,9 @@ R_test = 1200; % Ohm
 
 Voltage_gen = 1.0; % V
 
-Freq_min = 1.05; % Hz
+Freq_min = 0.1; % Hz
 Freq_max = 20e3; % Hz
-Freq_num = 20;
+Freq_num = 30;
 Freq_permutation = false;
 
 Ammeter_type = get_ammeter_variants("DLPCA200");
@@ -132,11 +132,11 @@ end
 if isempty(Main_error)
     disp("Finished without errors")
     Time_passed = Time_arr(end);
-    Time_prediction = time_predictor(freq_list);
+    [Time_pred_mean ,Time_pred_min, Time_pred_max] = time_predictor(freq_list);
     disp(['Minimum time = ' num2str(min_time) ' s']);
-    disp(['Time prediction = ' num2str(Time_prediction) ' s']);
+    disp(['Time prediction = ' num2str(Time_pred_mean) ' s']);
     disp(['Time passed = ' num2str(Time_passed) ' s']);
-    disp(['ratio: ' num2str(Time_passed/Time_prediction, '%0.2f')]);
+    disp(['ratio: ' num2str(Time_passed/Time_pred_mean, '%0.2f')]);
 
     if save_files_flag
         [F_arr, A_arr, P_arr] = Data.RPhi;
