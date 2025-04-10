@@ -6,9 +6,10 @@
 % ----TODO----:
 % 1) sample ping (in progress)
 % 2) auto-range (in progress)
-% 3) FRA settings struct
+% 3) time predictor (ready V1)
+
 % 4) Replace correction by interp1
-% 5) time predictor
+% 5) FRA settings struct
 % 6) Sample info struct
 % 7) 
 
@@ -23,7 +24,6 @@ clc
 
 R_test = 1200; % Ohm
 
-
 Voltage_gen = 1.0; % V
 
 Freq_min = 1.05; % Hz
@@ -31,7 +31,7 @@ Freq_max = 20e3; % Hz
 Freq_num = 20;
 Freq_permutation = false;
 
-Ammeter_type = "DLPCA200"; % DLPCA200, K6517b
+Ammeter_type = get_ammeter_variants("DLPCA200");
 
 Plot_corr_version = false;
 
@@ -152,9 +152,6 @@ end
 
 
 
-
-
-
 %-------------------------------------------------------------------------------
 
 function find_best_sense(SR860, Voltage_gen)
@@ -231,7 +228,6 @@ SR860.set_voltage_input_range(1);
 SR860.set_detector_phase(phase_shift);
 SR860.set_gen_config(100e-6, 1e3); % NOTE: gen off
 end
-
 
 
 
