@@ -17,17 +17,17 @@
 
 
 %%
-file_num = 1;
+file_num = 5;
 
 %%
 clc
 
 R_test = 1200; % Ohm
 
-Voltage_gen = 1.0; % V
+Voltage_gen = 0.5; % V
 
 Freq_min = 0.1; % Hz
-Freq_max = 20e3; % Hz
+Freq_max = 2e3; % Hz
 Freq_num = 30;
 Freq_permutation = false;
 
@@ -45,8 +45,14 @@ save_stable_data = false;
 % freq_list = [freq_list1 freq_list2];
 % min_time = min_time1 + min_time2;
 
-[freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, ...
-    Freq_num, Freq_permutation);
+[freq_list1, min_time1] = freq_list_gen(1, 100e3, 150);
+[freq_list2, min_time2] = freq_list_gen(0.1, 0.8, 8);
+[freq_list3, min_time3] = freq_list_gen(0.001, 0.05, 4);
+freq_list = [freq_list1 freq_list2 freq_list3];
+min_time = min_time1 + min_time2 + min_time3;
+
+% [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, ...
+%     Freq_num, Freq_permutation);
 % ----------------------------------------------------------
 
 if save_files_flag

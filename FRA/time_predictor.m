@@ -19,5 +19,5 @@ for i = 1:numel(freq_list)
     Full_time_max = Full_time_max + Max_time;
 end
 Full_time_mean = mean([Full_time_min Full_time_max]);
-Full_time_mean = Full_time_mean * 0.82;
+Full_time_mean = Full_time_mean * 0.82*1.06;
 end
