@@ -7,8 +7,8 @@
 % 1) sample ping (in progress)
 % 2) auto-range (in progress)
 % 3) FRA settings struct
-% 4) plot style
-% 5) 
+% 4) Replace correction by interp1
+% 5) time predictor
 % 6) Sample info struct
 % 7) 
 
@@ -26,14 +26,14 @@ R_test = 1200; % Ohm
 
 Voltage_gen = 1.0; % V
 
-Freq_min = 0.05; % Hz
-Freq_max = 200e3; % Hz
-Freq_num = 60;
+Freq_min = 1.05; % Hz
+Freq_max = 20e3; % Hz
+Freq_num = 20;
 Freq_permutation = false;
 
 Ammeter_type = "DLPCA200"; % DLPCA200, K6517b
 
-Disp_corr_version = false;
+Plot_corr_version = false;
 
 Delta_limit = 50e-6;
 save_files_flag = true;
@@ -107,7 +107,7 @@ try
         Data.add(freq, "R", Amp, "Phi", Phase);
 
         Data_corr = Data.correction();
-        if Disp_corr_version
+        if Plot_corr_version
             Fig.replace_FRA_data(Data_corr);
         else
             Fig.replace_FRA_data(Data);
@@ -132,9 +132,11 @@ end
 if isempty(Main_error)
     disp("Finished without errors")
     Time_passed = Time_arr(end);
-    disp(['Time passed = ' num2str(Time_passed) ' s']);
+    Time_prediction = time_predictor(freq_list);
     disp(['Minimum time = ' num2str(min_time) ' s']);
-    disp(['ratio: ' num2str(Time_passed/min_time, '%0.2f')]);
+    disp(['Time prediction = ' num2str(Time_prediction) ' s']);
+    disp(['Time passed = ' num2str(Time_passed) ' s']);
+    disp(['ratio: ' num2str(Time_passed/Time_prediction, '%0.2f')]);
 
     if save_files_flag
         [F_arr, A_arr, P_arr] = Data.RPhi;
@@ -186,14 +188,7 @@ SR860.set_time_constant(Lockin_Tc);
 
 %---TIMES-----------------------------
 Period = 1/freq;
-%-------------------------------------
-Times_conf.Period = Period;
-Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
-Times_conf.Wait_fraction_of_period = 0.8; % [1]
-Times_conf.Min_number_of_stable_intervals = 3; % [1]
-Times_conf.Wait_min = 0.15; % [s]
-Times_conf.Stable_interval_min = 0.5; % [s]
-%-------------------------------------
+Times_conf = get_time_conf_common(Period);
 [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
 %-------------------------------------
 

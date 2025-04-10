@@ -1,4 +1,5 @@
 
+% TODO: need rand() simulation
 clc
 
 H = 200e-6; % m
