@@ -6,3 +6,5 @@ List of dependencies:
 [Automation_device_class](https://github.com/AleksandrVakulenko/Automation_device_class)  
 [Automation-GUI](https://github.com/AleksandrVakulenko/Automation-GUI)  
 
+Devices manuals:
+https://disk.yandex.ru/d/DyWaqg6WDpL1-g

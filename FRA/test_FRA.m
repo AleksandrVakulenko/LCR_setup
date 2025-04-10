@@ -1,4 +1,4 @@
-% Date: 2025.04.08
+% Date: 2025.04.10
 %
 % ----INFO----:
 % Test for FRA measurement
@@ -31,12 +31,23 @@ Freq_max = 200e3; % Hz
 Freq_num = 60;
 Freq_permutation = false;
 
+Ammeter_type = "DLPCA200"; % DLPCA200, K6517b
+
 Disp_corr_version = false;
 
 Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
+% -----------FREQ LIST GEN----------------------------------
+% [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
+% [freq_list2, min_time2] = freq_list_gen(0.1, 0.4, 8);
+% freq_list = [freq_list1 freq_list2];
+% min_time = min_time1 + min_time2;
+
+[freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, ...
+    Freq_num, Freq_permutation);
+% ----------------------------------------------------------
 
 if save_files_flag
     file_num = file_num + 1;
@@ -45,31 +56,31 @@ end
 
 % DEV INIT
 SR860 = SR860_dev(4);
-% Ammeter = K6517b_dev(27);
+if Ammeter_type == "K6517b"
+    Ammeter = K6517b_dev(27);
+end
 
 % MAIN ------------------------------------------------------------------------
+Main_error = [];
 try
-    SR860_set_common_profile(SR860);
-        
+    SR860_set_common_profile(SR860, "non_inv");
+
     Current_max = Voltage_gen/R_test;
 
-%     Ammeter.config("current");
-%     Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
-      Sense_V2C = 1/1e3;
-%     Ammeter.enable_feedback("enable");
-
-%     [freq_list1, min_time1] = freq_list_gen(0.5, 10e3, 50);
-%     [freq_list2, min_time2] = freq_list_gen(0.1, 0.4, 8);
-%     freq_list = [freq_list1 freq_list2];
-%     min_time = min_time1 + min_time2;
-
-    [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, ...
-        Freq_num, Freq_permutation);
+    if Ammeter_type == "K6517b"
+        Ammeter.config("current");
+        Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
+        Ammeter.enable_feedback("enable");
+    elseif Ammeter_type == "DLPCA200"
+        Sense_V2C = 1/1e3; % FIXME
+    else
+        error('Wrong type of ammeter')
+    end
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
-    
+
     find_best_sense(SR860, Voltage_gen);
-    
+
 
     Time_arr = zeros(size(freq_list));
     Data = FRA_data('I, [A]');
@@ -79,12 +90,12 @@ try
         disp(' ')
         disp(['freq = ' num2str(freq) ' Hz'])
 
-        save_pack = struct('comment', "real run", 'freq_list', freq_list, ... 
-        'freq', freq, 'i', i);
+        save_pack = struct('comment', "real run", 'freq_list', freq_list, ...
+            'freq', freq, 'i', i);
         if ~save_stable_data
             save_pack = [];
         end
-        
+
         [Amp, Phase] = Lock_in_measure(SR860, ...
             Voltage_gen, freq, Delta_limit, save_pack);
 
@@ -104,109 +115,128 @@ try
 
     end
 % END MAIN --------------------------------------------------------------------
-catch ERR
-%     Ammeter.enable_feedback("disable");
-    SR860.set_gen_config(0.001, 1e3);
-    delete(SR860);
-%     delete(Ammeter);
-    disp('Call Destructors');
-    rethrow(ERR);
-end 
-
-disp("Finished without errors")
-Time_passed = Time_arr(end);
-disp(['Time passed = ' num2str(Time_passed) ' s']);
-disp(['Minimum time = ' num2str(min_time) ' s']);
-disp(['ratio: ' num2str(Time_passed/min_time, '%0.2f')]);
-
-
-% Ammeter.enable_feedback("disable");
-delete(SR860);
-% delete(Ammeter);
-
-if save_files_flag
-    [F_arr, A_arr, P_arr] = Data.RPhi;
-    save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
+catch Main_error
+    
 end
+
+SR860.set_gen_config(0.001, 1e3);
+delete(SR860);
+
+if Ammeter_type == "K6517b"
+    Ammeter.enable_feedback("disable");
+    delete(Ammeter);
+elseif Ammeter_type == "DLPCA200"
+    % nothing to do
+end
+
+if isempty(Main_error)
+    disp("Finished without errors")
+    Time_passed = Time_arr(end);
+    disp(['Time passed = ' num2str(Time_passed) ' s']);
+    disp(['Minimum time = ' num2str(min_time) ' s']);
+    disp(['ratio: ' num2str(Time_passed/min_time, '%0.2f')]);
+
+    if save_files_flag
+        [F_arr, A_arr, P_arr] = Data.RPhi;
+        save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
+    end
+
+else
+    rethrow(Main_error);
+end
+
+
+
+
+
+
 
 
 
 %-------------------------------------------------------------------------------
 
 function find_best_sense(SR860, Voltage_gen)
-    Delta_limit = 200e-6; 
+Delta_limit = 200e-6;
 
-    freq = 10;
+freq = 10;
 
-    SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
-    [Amp, ~] = Lock_in_measure(SR860, ...
+SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
+[Amp, ~] = Lock_in_measure(SR860, ...
     Voltage_gen, freq, Delta_limit, []);
 
-    Amp = Amp*1.2;
+Amp = Amp*1.2;
 
-    SR860.set_sensitivity(Amp, "voltage");
+SR860.set_sensitivity(Amp, "voltage");
 
 %     disp(['Amp = ' num2str(Amp) ' V'])
 end
 
 
-
-
 function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
     Delta_limit, save_pack)
 
-    Lockin_Tc = 0.25; % FIXME
+Lockin_Tc = 0.25; % FIXME
 
-    %---Lock_in SET------------------------
-    Voltage_gen_rms = Voltage_gen/sqrt(2);
-    SR860.set_gen_config(Voltage_gen_rms, freq);
-    % TODO: could Tc be small in case of sync adaptive filter???
-    SR860.set_time_constant(Lockin_Tc);
-    %-------------------------------------
+%---Lock_in SET------------------------
+Voltage_gen_rms = Voltage_gen/sqrt(2);
+SR860.set_gen_config(Voltage_gen_rms, freq);
+% TODO: could Tc be small in case of sync adaptive filter???
+SR860.set_time_constant(Lockin_Tc);
+%-------------------------------------
 
-    %---TIMES-----------------------------
-    Period = 1/freq;
-    %-------------------------------------
-    Times_conf.Period = Period;
-    Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
-    Times_conf.Wait_fraction_of_period = 0.8; % [1]
-    Times_conf.Min_number_of_stable_intervals = 3; % [1]
-    Times_conf.Wait_min = 0.15; % [s]
-    Times_conf.Stable_interval_min = 0.5; % [s]
-    %-------------------------------------
-    [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
-    %-------------------------------------
-            
-    % Wait befor stable check
-    adev_utils.Wait(Wait_time, 'Wait one Wait_time');
+%---TIMES-----------------------------
+Period = 1/freq;
+%-------------------------------------
+Times_conf.Period = Period;
+Times_conf.Max_meas_time_fraction_of_period = 1.4; % [1]
+Times_conf.Wait_fraction_of_period = 0.8; % [1]
+Times_conf.Min_number_of_stable_intervals = 3; % [1]
+Times_conf.Wait_min = 0.15; % [s]
+Times_conf.Stable_interval_min = 0.5; % [s]
+%-------------------------------------
+[Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
+%-------------------------------------
 
-    Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
-        save_pack, Stable_Time_interval, 10, Stable_timeout);
+% Wait befor stable check
+adev_utils.Wait(Wait_time, 'Wait one Wait_time');
 
-    while ~Stable_checker.test
-        % nothing to do here
-    end
-    % -----------------------------------------------
+Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
+    save_pack, Stable_Time_interval, 10, Stable_timeout);
 
-    [Amp, Phase] = SR860.data_get_R_and_Phase();
+while ~Stable_checker.test
+    % nothing to do here
+end
+% -----------------------------------------------
+
+[Amp, Phase] = SR860.data_get_R_and_Phase();
 end
 
 
-
-function SR860_set_common_profile(SR860)
-    SR860.RESET();
-    SR860.configure_input("VOLT");
-    SR860.set_advanced_filter("on");
-    SR860.set_sync_filter('on');
-    SR860.set_expand(1, "XYR");
-    SR860.set_sync_src("INT");
-    SR860.set_harm_num(1);
-    SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
-    SR860.set_voltage_input_range(1);
-%     SR860.set_detector_phase(180); % NOTE: inv for K6517b
-    SR860.set_detector_phase(0); % NOTE: non-inv for DLPCA-200
-    SR860.set_gen_config(100e-6, 1e3); % NOTE: off
+function SR860_set_common_profile(SR860, phase_inv)
+arguments
+    SR860 SR860_dev
+    phase_inv {mustBeMember(phase_inv, ["inv", "non_inv"])} = "non_inv"
 end
+
+if phase_inv == "inv"
+    phase_shift = 180; % K6517b
+else
+    phase_shift = 0; % DLPCA-200
+end
+
+SR860.RESET();
+SR860.configure_input("VOLT");
+SR860.set_advanced_filter("on");
+SR860.set_sync_filter('on');
+SR860.set_expand(1, "XYR");
+SR860.set_sync_src("INT");
+SR860.set_harm_num(1);
+SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
+SR860.set_voltage_input_range(1);
+SR860.set_detector_phase(phase_shift);
+SR860.set_gen_config(100e-6, 1e3); % NOTE: gen off
+end
+
 
 
 
