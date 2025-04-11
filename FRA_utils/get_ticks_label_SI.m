@@ -18,13 +18,15 @@ end
 
 
 function [Exp, Unit] = get_exp_unit(Exp)
-if Exp > 15
-    Exp = 15;
+if Exp > 18
+    Exp = 18;
 end
 if Exp < -12
     Exp = -12;
 end
 switch Exp
+    case 18
+        Unit = "a";
     case 15
         Unit = "f";
     case 12
