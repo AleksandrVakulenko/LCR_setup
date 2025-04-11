@@ -7,11 +7,13 @@
 % 1) sample ping (in progress)
 % 2) auto-range (in progress)
 % 3) time predictor (ready V1)
+% 4) Add lock-in I-V converter
+% 5) Create ammeter traits
 
-% 4) Replace correction by interp1
-% 5) FRA settings struct
-% 6) Sample info struct
-% 7) 
+% 6) Replace correction by interp1
+% 7) FRA settings struct
+% 8) Sample info struct
+% 9) 
 
 % ------------
 
