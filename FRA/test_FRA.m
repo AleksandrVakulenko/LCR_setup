@@ -4,16 +4,18 @@
 % Test for FRA measurement
 
 % ----TODO----:
-% 1) sample ping (in progress)
-% 2) auto-range (in progress)
-% 3) time predictor (ready V1)
-% 4) Add lock-in I-V converter
-% 5) Create ammeter traits
-
-% 6) Replace correction by interp1
-% 7) FRA settings struct
-% 8) Sample info struct
-% 9) 
+%  1) Add lock-in I-V converter
+%  2) Test lock-in I-V converter
+%  3) Create ammeter traits
+%  4) 
+%  5) sample ping (in progress)
+%  6) auto-range (in progress)
+%  7) Replace correction by interp1
+%  8) Add more stable settings
+%  9) FRA settings struct
+% 10) Sample info struct
+% 11) Add Harm measuring
+% 12) time predictor auto-update
 
 % ------------
 

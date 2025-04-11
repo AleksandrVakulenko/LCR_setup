@@ -5,14 +5,15 @@ clc
 N = 50000;
 Thickness = Thickness_rand(N) * 1e-6; % m
 Diameter = Diameter_rand(N) * 1e-3; % m
-Eps = rand_range(1, 40000, N);
-freq = 10.^linspace(log10(0.01), log10(1000), 10); % Hz
+Eps = Eps_rand(N);
+freq = 10.^linspace(log10(0.001), log10(1000), 10); % Hz
 V = 1;
 
 
 S = pi*(Diameter/2).^2; % m^2
 Cap = 8.85e-12*Eps.*S./Thickness; % F
 R = 1./(2*pi*Cap'*freq);
+R = reshape(R, 1, numel(R));
 I = V./R;
 
 
@@ -34,15 +35,19 @@ P10 = prctile(I_log, 5);
 P90 = prctile(I_log, 95);
 Max = prctile(I_log, 99.5);
 
-range = (I_log2 < Min) | (I_log2 > Max);
+range = (I_log2 < Min);
 I_log2(range) = [];
 PDF(range) = [];
 
 figure('Position', [400  375  815  530])
 I_log2 = 10.^I_log2;
 plot(I_log2, PDF, 'Marker', 'none', 'LineWidth', 2.0)
-xline(10.^P10, '--b')
-xline(10.^P90, '--b')
+xline(10.^P10, '--b', 'LineWidth', 1)
+xline(10.^P90, '--b', 'LineWidth', 1)
+xline(10e-3, '-r', 'LineWidth', 1)
+xline(1e-6, '-r', 'LineWidth', 1)
+xline(1e-9, '-r', 'LineWidth', 1)
+xlim([1e-13 50e-3])
 xlabel('I, A')
 ylabel('PDF')
 grid on
@@ -50,10 +55,7 @@ set(gca, 'xscale', 'log')
 set_axis_ticks(gca, "SI", "x")
 % set(gca, 'xscale', 'log')
 % xlim([1e-15 1e-2])
-% xline(log10(20e-3), '-r')
-% xline(log10(10e-3), '-r')
-% xline(log10(1e-6), '-r')
-% xline(log10(1e-9), '-r')
+
 
 
 
@@ -130,7 +132,34 @@ Diameter = Dist_rand;
 end
 
 
+function Eps = Eps_rand(N)
+x_step = 0.001;
+x = 0:x_step:40;
 
+y = gaussmf(x, [8, 5]) + 0.2*gaussmf(x, [15, 5]);
+
+range = x < 1;
+Arg = (x(range)-0.02)/0.005;
+y(range) = y(range) .* exp(Arg)./(1 + exp(Arg));
+
+Sum = trapz(x, y);
+y = y/Sum;
+
+
+
+CDF = cumsum(y)*x_step;
+CDF(1) = 0;
+CDF(end) = 1;
+
+Uni_rand = rand(1, N);
+
+Dist_rand = interp1(CDF, x, Uni_rand);
+
+Eps = Dist_rand*1000;
+% figure
+% plot(x, CDF)
+% histogram(Dist_rand)
+end
 
 
 
