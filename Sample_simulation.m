@@ -6,8 +6,9 @@ N = 50000;
 Thickness = Thickness_rand(N) * 1e-6; % m
 Diameter = Diameter_rand(N) * 1e-3; % m
 Eps = Eps_rand(N);
-freq = 10.^linspace(log10(0.001), log10(1000), 10); % Hz
-V = 1;
+freq = 10.^linspace(log10(0.001), log10(10e3), 10); % Hz
+% freq = 500;
+V = 0.1;
 
 
 S = pi*(Diameter/2).^2; % m^2
@@ -20,7 +21,7 @@ I = V./R;
 I = reshape(I, 1, numel(I));
 I_log = log10(I);
 
-%%
+%
 clc
 
 fig = figure('Visible', 'off');
@@ -35,33 +36,55 @@ P10 = prctile(I_log, 5);
 P90 = prctile(I_log, 95);
 Max = prctile(I_log, 99.5);
 
-range = (I_log2 < Min);
-I_log2(range) = [];
-PDF(range) = [];
 
 figure('Position', [400  375  815  530])
 I_log2 = 10.^I_log2;
 plot(I_log2, PDF, 'Marker', 'none', 'LineWidth', 2.0)
 xline(10.^P10, '--b', 'LineWidth', 1)
 xline(10.^P90, '--b', 'LineWidth', 1)
-xline(10e-3, '-r', 'LineWidth', 1)
-xline(1e-6, '-r', 'LineWidth', 1)
-xline(1e-9, '-r', 'LineWidth', 1)
-xlim([1e-13 50e-3])
+
+xline(10/10e3, '-r', 'LineWidth', 1)
+xline(10/10e5, '-r', 'LineWidth', 1)
+xline(10/10e8, '-r', 'LineWidth', 1)
+xline(10/10e11, '-r', 'LineWidth', 1)
+
+xlim([1e-15 50e-3])
 xlabel('I, A')
 ylabel('PDF')
 grid on
 set(gca, 'xscale', 'log')
-set_axis_ticks(gca, "SI", "x")
+set_axis_ticks(gca, "auto", "x")
 % set(gca, 'xscale', 'log')
 % xlim([1e-15 1e-2])
 
 
 
 
+%
+
+I_array = [1e-3, 1e-4, 1e-5, ...
+           1e-6, 1e-7, 1e-8, ...
+           1e-9, 1e-10, 1e-11, ...
+           1e-12, 1e-13];
+
+
+V_array = [2, 0.1, 0.01, 0.001, 100e-6, 10e-6];
+
+R_array = [1e3, 1e6, 100e6, 1e9];
+
+
+hold on
+
+for i = 1:numel(R_array)
+    I_array = V_array/R_array(i);
+    plot(I_array, (i+1)*ones(size(I_array))/100, '.-b', 'MarkerSize', 12)
+end
 
 
 
+
+
+%%
 
 
 
