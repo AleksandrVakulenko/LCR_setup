@@ -1,41 +1,41 @@
-% Date: 2025.04.10
+% Date: 2025.04.21
 %
 % ----INFO----:
-% Test for FRA measurement
+% 
 
 % ----TODO----:
-%  1) Add lock-in I-V converter
-%  2) Test lock-in I-V converter
+%  1) 
+%  2) 
 %  3) 
 %  4) 
-%  5) sample ping (in progress)
-%  6) auto-range (in progress)
-%  7) Replace correction by interp1
-%  8) Add more stable settings
-%  9) FRA settings struct
-% 10) Sample info struct
-% 11) Add Harm measuring
-% 12) time predictor auto-update
+%  5) 
 
 % ------------
 
+% 1/9) R = 1000 V = 0.5 50.0
+% 2/9) R = 1000 V = 0.05 50.0
+% 3/9) R = 1000 V = 0.005 50.0
+% 4/9) R = 1000000 V = 0.5 50.0
+% 5/9) R = 1000000 V = 0.05 50.0
+% 6/9) R = 1000000 V = 0.005 50.0
+% 7/9) R = 1000000 V = 0.0005 50.0
+% 8/9) R = 1000000 V = 5e-05 50.0
+% 9/9) R = 100000000 V = 0.0005 50.0
+
 
 %%
-file_num = 5;
+file_num = 0;
 
 %%
 clc
 
 DLPCA200_COM_PORT = 4; % FIXME!!!!
 
-R_test = 1200; % Ohm
-
+R_test = 1000; % Ohm / 1e3, 1e6, 100e6, 1e9
 Voltage_gen = 0.5; % V
+Sense_Level = 3; % (H/L) : 3, 4, 5, 6, 7, 8, 9 / (H) : 10, 11
+Sense_Range = "L"; % "L", "H"
 
-Freq_min = 0.1; % Hz
-Freq_max = 2e3; % Hz
-Freq_num = 30;
-Freq_permutation = false;
 
 Ammeter_type = get_ammeter_variants("DLPCA200");
 
@@ -46,15 +46,19 @@ save_files_flag = true;
 save_stable_data = false;
 
 % -----------FREQ LIST GEN----------------------------------
-% [freq_list1] = freq_list_gen(0.5, 10e3, 50);
-% [freq_list2] = freq_list_gen(0.1, 0.4, 8);
-% freq_list = [freq_list1 freq_list2];
+[freq_list1] = freq_list_gen(0.5, 10e3, 50);
+[freq_list2] = freq_list_gen(0.1, 0.4, 8);
+freq_list = [freq_list1 freq_list2];
 
-[freq_list1] = freq_list_gen(1, 100e3, 150);
-[freq_list2] = freq_list_gen(0.1, 0.8, 8);
-[freq_list3] = freq_list_gen(0.001, 0.05, 4);
-freq_list = [freq_list1 freq_list2 freq_list3];
+% [freq_list1] = freq_list_gen(1, 100e3, 150);
+% [freq_list2] = freq_list_gen(0.1, 0.8, 8);
+% [freq_list3] = freq_list_gen(0.001, 0.05, 4);
+% freq_list = [freq_list1 freq_list2 freq_list3];
 
+% Freq_min = 0.1; % Hz
+% Freq_max = 2e3; % Hz
+% Freq_num = 30;
+% Freq_permutation = false;
 % [freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, ...
 %     Freq_num, Freq_permutation);
 % ----------------------------------------------------------
@@ -81,12 +85,12 @@ try
 
     Current_max = Voltage_gen/R_test;
 
-    Sense_V2C = Ammeter.set_current_sensitivity(Current_max*1.1);
+    Sense_V2C = Ammeter.set_sensitivity(Sense_Level, Sense_Range);
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
 
     find_best_sense(SR860, Voltage_gen);
-
+    
 
     Time_arr = zeros(size(freq_list));
     Data = FRA_data('I, [A]');
