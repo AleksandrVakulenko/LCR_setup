@@ -6,7 +6,7 @@
 % ----TODO----:
 %  1) Add lock-in I-V converter
 %  2) Test lock-in I-V converter
-%  3) Create ammeter traits
+%  3) 
 %  4) 
 %  5) sample ping (in progress)
 %  6) auto-range (in progress)
@@ -25,6 +25,8 @@ file_num = 5;
 
 %%
 clc
+
+DLPCA200_COM_PORT = 4; % FIXME!!!!
 
 R_test = 1200; % Ohm
 
@@ -68,6 +70,10 @@ end
 SR860 = SR860_dev(4);
 if Ammeter_type == "K6517b"
     Ammeter = K6517b_dev(27);
+    Ammeter.config("current");
+    Ammeter.enable_feedback("enable");
+elseif Ammeter_type == "DLPCA200"
+    Ammeter = DLPCA200_dev(DLPCA200_COM_PORT);
 end
 
 % MAIN ------------------------------------------------------------------------
@@ -77,15 +83,7 @@ try
 
     Current_max = Voltage_gen/R_test;
 
-    if Ammeter_type == "K6517b"
-        Ammeter.config("current");
-        Sense_V2C = Ammeter.set_sensitivity(Current_max*1.1, "current");
-        Ammeter.enable_feedback("enable");
-    elseif Ammeter_type == "DLPCA200"
-        Sense_V2C = 1/1e3; % FIXME
-    else
-        error('Wrong type of ammeter')
-    end
+    Sense_V2C = Ammeter.set_current_sensitivity(Current_max*1.1);
 
     Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
 
@@ -136,7 +134,9 @@ if Ammeter_type == "K6517b"
     Ammeter.enable_feedback("disable");
     delete(Ammeter);
 elseif Ammeter_type == "DLPCA200"
-    % nothing to do
+    delete(Ammeter);
+else
+    error('unreachable code!!!')
 end
 
 if isempty(Main_error)
