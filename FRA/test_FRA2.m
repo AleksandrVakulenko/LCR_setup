@@ -12,20 +12,21 @@
 
 % ------------
 
-% 1/9) R = 1000 V = 0.5 50.0
-% 2/9) R = 1000 V = 0.05 50.0
-% 3/9) R = 1000 V = 0.005 50.0
-% 4/9) R = 1000000 V = 0.5 50.0
-% 5/9) R = 1000000 V = 0.05 50.0
-% 6/9) R = 1000000 V = 0.005 50.0
-% 7/9) R = 1000000 V = 0.0005 50.0
-% 8/9) R = 1000000 V = 5e-05 50.0
-% 9/9) R = 100000000 V = 0.0005 50.0
+% (1/9) 3  R = 1000 V = 1 10.0
+% (2/9) 4  R = 1000 V = 0.5 50.0
+% (3/9) 5  R = 1000 V = 0.05 50.0
+% (4/9) 6  R = 1000000 V = 1 10.0
+% (5/9) 7  R = 1000000 V = 0.5 50.0
+% (6/9) 8  R = 1000000 V = 0.05 50.0
+% (7/9) 9  R = 1000000 V = 0.005 50.0
+% (8/9) 10  R = 1000000 V = 0.0005 50.0
+% (9/9) 11  R = 1000000 V = 5e-05 50.0
+%       11  R = 1e9     V = 50e-3 50.0
 
 
 %%
 file_num = 0;
-
+mkdir('..\test_results_2025_04_22');
 %%
 clc
 
@@ -33,10 +34,10 @@ DLPCA200_COM_PORT = 4; % FIXME!!!!
 
 R_test = 1000; % Ohm / 1e3, 1e6, 100e6, 1e9
 Voltage_gen = 0.5; % V
-Sense_Level = 3; % (H/L) : 3, 4, 5, 6, 7, 8, 9 / (H) : 10, 11
+Sense_Level = 3; % (L): 3, 4 | (H/L): 5, 6, 7, 8, 9 | (H): 10, 11
 Sense_Range = "L"; % "L", "H"
 
-
+Divider_value = 0.1;
 Ammeter_type = get_ammeter_variants("DLPCA200");
 
 Plot_corr_version = false;
@@ -65,7 +66,7 @@ freq_list = [freq_list1 freq_list2];
 
 if save_files_flag
     file_num = file_num + 1;
-    filename = ['test_results\test_' num2str(file_num, '%02u') '_R.mat'];
+    filename = ['..\test_results_2025_04_22\ctest_' num2str(file_num, '%02u') '_R.mat'];
 end
 
 % DEV INIT
@@ -109,7 +110,7 @@ try
         [Amp, Phase] = Lock_in_measure(SR860, ...
             Voltage_gen, freq, Delta_limit, save_pack);
 
-        Amp = Amp*Sense_V2C*sqrt(2);
+        Amp = Amp*Sense_V2C*sqrt(2)/Divider_value;
 %         Amp = Voltage_gen./Amp;
         time = toc(Timer);
 
@@ -152,7 +153,8 @@ if isempty(Main_error)
 
     if save_files_flag
         [F_arr, A_arr, P_arr] = Data.RPhi;
-        save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
+%         save(filename, "A_arr", "P_arr", "F_arr", "Time_arr", "Sense_V2C")
+        save(filename); % NOTE: SAVE ALL DATA!
     end
 
 else
