@@ -23,19 +23,28 @@
 % (9/9) 11  R = 1000000 V = 5e-05 50.0
 %       11  R = 1e9     V = 50e-3 50.0
 
+% (3/9) 5H  R = 1000 V = 0.05 50.0
+% (4/9) 6H  R = 1000000 V = 1 10.0
+% (5/9) 7H  R = 1000000 V = 0.5 50.0
+% (6/9) 8H  R = 1000000 V = 0.05 50.0
+% (7/9) 9H  R = 1000000 V = 0.005 50.0
+
+% (1/9) 3L  R = 1000000 V = 1.0
+% (2/9) 4L  R = 1000000 V = 1.0
+% (3/9) 5H  R = 1000000 V = 1.0
 
 %%
 file_num = 0;
-mkdir('..\test_results_2025_04_22');
+mkdir('..\..\test_results_2025_04_22');
 %%
 clc
 
-DLPCA200_COM_PORT = 4; % FIXME!!!!
+DLPCA200_COM_PORT = 3;
 
-R_test = 1000; % Ohm / 1e3, 1e6, 100e6, 1e9
-Voltage_gen = 0.5; % V
-Sense_Level = 3; % (L): 3, 4 | (H/L): 5, 6, 7, 8, 9 | (H): 10, 11
-Sense_Range = "L"; % "L", "H"
+R_test = 1000000; % Ohm / 1e3, 1e6, 100e6, 1e9
+Voltage_gen = 1.0; % V
+Sense_Level = 5; % (L): 3, 4 | (H/L): 5, 6, 7, 8, 9 | (H): 10, 11
+Sense_Range = "H"; % "L", "H"
 
 Divider_value = 0.1;
 Ammeter_type = get_ammeter_variants("DLPCA200");
@@ -47,9 +56,10 @@ save_files_flag = true;
 save_stable_data = false;
 
 % -----------FREQ LIST GEN----------------------------------
-[freq_list1] = freq_list_gen(0.5, 10e3, 50);
-[freq_list2] = freq_list_gen(0.1, 0.4, 8);
-freq_list = [freq_list1 freq_list2];
+[freq_list1] = freq_list_gen(10e3, 100e3, 13);
+[freq_list2] = freq_list_gen(0.8, 8e3, 50);
+[freq_list3] = freq_list_gen(0.2, 0.8, 4);
+freq_list = [freq_list1 freq_list2 freq_list3];
 
 % [freq_list1] = freq_list_gen(1, 100e3, 150);
 % [freq_list2] = freq_list_gen(0.1, 0.8, 8);
@@ -66,7 +76,7 @@ freq_list = [freq_list1 freq_list2];
 
 if save_files_flag
     file_num = file_num + 1;
-    filename = ['..\test_results_2025_04_22\ctest_' num2str(file_num, '%02u') '_R.mat'];
+    filename = ['..\..\test_results_2025_04_22\ctest_' num2str(file_num, '%02u') '_R.mat'];
 end
 
 % DEV INIT
@@ -81,6 +91,7 @@ end
 
 % MAIN ------------------------------------------------------------------------
 Main_error = [];
+pause(0.5); % FIXME: debug
 try
     SR860_set_common_profile(SR860, "non_inv");
 
