@@ -78,21 +78,22 @@ classdef stable_check < handle
 %             disp([num2str(Delta0) '  ' num2str(Delta)])
 %             disp(' ')
 
+            stable = false;
             if Delta < obj.Delta_limit
                 stable = true;
             else
-                stable = false;
+                if time > obj.Stable_timeout
+                    disp('Stable_check TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT:')
+                    DISP_DELTA(Delta, obj.Delta_limit, 'ppm');
+                    stable = true;
+                end
             end
             
             if obj.Disp_mode ~= "none"
                 DISP_DELTA(Delta, obj.Delta_limit, obj.Disp_mode);
             end
 
-            if time > obj.Stable_timeout
-                disp('Stable_check TIMEOUT TIMEOUT TIMEOUT TIMEOUT TIMEOUT:')
-                DISP_DELTA(Delta, obj.Delta_limit, 'ppm');
-                stable = true;
-            end
+
             
             % NOTE: debug zone:
             if ~isempty(obj.Data_save)
@@ -102,9 +103,9 @@ classdef stable_check < handle
                 obj.Data.delta_x = [obj.Data.delta_x Delta_X];
                 obj.Data.delta_y = [obj.Data.delta_y Delta_Y];
                 obj.Data.delta = [obj.Data.delta Delta];
-                if stable
-                    obj.save_data_file();
-                end
+                % if stable % FIXME: save always?
+                obj.save_data_file();
+                % end
             end
         end
     end

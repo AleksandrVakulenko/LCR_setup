@@ -44,9 +44,12 @@ xline(10.^P10, '--b', 'LineWidth', 1)
 xline(10.^P90, '--b', 'LineWidth', 1)
 
 xline(10/10e3, '-r', 'LineWidth', 1)
+xline(10/10e4, '-r', 'LineWidth', 1)
 xline(10/10e5, '-r', 'LineWidth', 1)
+xline(10/10e6, '-r', 'LineWidth', 1)
+xline(10/10e7, '-r', 'LineWidth', 1)
 xline(10/10e8, '-r', 'LineWidth', 1)
-xline(10/10e11, '-r', 'LineWidth', 1)
+xline(10/10e9, '-r', 'LineWidth', 1)
 
 xlim([1e-15 50e-3])
 xlabel('I, A')
@@ -68,7 +71,7 @@ I_array = [1e-3, 1e-4, 1e-5, ...
            1e-12, 1e-13];
 
 
-V_array = [2, 0.1, 0.01, 0.001, 100e-6, 10e-6];
+V_array = [1, 0.5, 0.05, 0.005, 500e-6, 50e-6];
 
 R_array = [1e3, 1e6, 100e6, 1e9];
 

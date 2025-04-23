@@ -7,7 +7,7 @@
 %  1) Add lock-in I-V converter
 %  2) Test lock-in I-V converter
 %  3) 
-%  4) 
+%  4) Freq list generator
 %  5) sample ping (in progress)
 %  6) auto-range (in progress)
 %  7) Replace correction by interp1
@@ -103,7 +103,7 @@ try
         end
 
         [Amp, Phase] = Lock_in_measure(SR860, ...
-            Voltage_gen, freq, Delta_limit, save_pack);
+            Voltage_gen, freq, Delta_limit, "common", save_pack);
 
         Amp = Amp*Sense_V2C*sqrt(2);
 %         Amp = Voltage_gen./Amp;
@@ -157,85 +157,6 @@ end
 
 
 
-
-
-
-%-------------------------------------------------------------------------------
-
-function find_best_sense(SR860, Voltage_gen)
-Delta_limit = 200e-6;
-
-freq = 10;
-
-SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
-[Amp, ~] = Lock_in_measure(SR860, ...
-    Voltage_gen, freq, Delta_limit, []);
-
-Amp = Amp*1.2;
-
-SR860.set_sensitivity(Amp, "voltage");
-
-%     disp(['Amp = ' num2str(Amp) ' V'])
-end
-
-
-function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
-    Delta_limit, save_pack)
-
-Lockin_Tc = 0.25; % FIXME
-
-%---Lock_in SET------------------------
-Voltage_gen_rms = Voltage_gen/sqrt(2);
-SR860.set_gen_config(Voltage_gen_rms, freq);
-% TODO: could Tc be small in case of sync adaptive filter???
-SR860.set_time_constant(Lockin_Tc);
-%-------------------------------------
-
-%---TIMES-----------------------------
-Period = 1/freq;
-Times_conf = get_time_conf_common(Period);
-[Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
-%-------------------------------------
-
-% Wait befor stable check
-adev_utils.Wait(Wait_time, 'Wait one Wait_time');
-
-Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
-    save_pack, Stable_Time_interval, 10, Stable_timeout);
-
-while ~Stable_checker.test
-    % nothing to do here
-end
-% -----------------------------------------------
-
-[Amp, Phase] = SR860.data_get_R_and_Phase();
-end
-
-
-function SR860_set_common_profile(SR860, phase_inv)
-arguments
-    SR860 SR860_dev
-    phase_inv {mustBeMember(phase_inv, ["inv", "non_inv"])} = "non_inv"
-end
-
-if phase_inv == "inv"
-    phase_shift = 180; % K6517b
-else
-    phase_shift = 0; % DLPCA-200
-end
-
-SR860.RESET();
-SR860.configure_input("VOLT");
-SR860.set_advanced_filter("on");
-SR860.set_sync_filter('on');
-SR860.set_expand(1, "XYR");
-SR860.set_sync_src("INT");
-SR860.set_harm_num(1);
-SR860.set_filter_slope("6 dB/oct"); % FIXME: fast or slow?
-SR860.set_voltage_input_range(1);
-SR860.set_detector_phase(phase_shift);
-SR860.set_gen_config(100e-6, 1e3); % NOTE: gen off
-end
 
 
 
