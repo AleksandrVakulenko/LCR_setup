@@ -26,10 +26,10 @@
 % 01) 3L  R = 1000    V = 1.0   (10.0%)
 % 02) 4L  R = 1000    V = 0.5   (50.0%)
 % 03) 5H  R = 1000    V = 0.05  (50.0%)
-% 06) 6H  R = 1000000 V = 1.0   (10.0%)
-% 07) 7H  R = 1000000 V = 0.5   (50.0%)
-% 08) 8H  R = 1000000 V = 0.05  (50.0%)
-% 09) 9H  R = 1000000 V = 0.005 (50.0%)
+% 04) 6H  R = 1000000 V = 1.0   (10.0%)
+% 05) 7H  R = 1000000 V = 0.5   (50.0%)
+% 06) 8H  R = 1000000 V = 0.05  (50.0%)
+% 07) 9H  R = 1000000 V = 0.005 (50.0%)
 
 Calibration_voltage = [1.0
                        0.5
@@ -62,7 +62,7 @@ Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
-for Cal_N = [1, 2, 3] %[4, 5, 6, 7]
+for Cal_N = [1, 2, 3] % [1, 2, 3] OR [4, 5, 6, 7]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
     Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
     Voltage_gen = Calibration_voltage(Cal_N); % V
