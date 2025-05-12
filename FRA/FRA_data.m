@@ -1,4 +1,8 @@
 
+% TODO:
+% 1) Add unit comment for auto plot decoration
+% 2) 
+% 3) 
 
 
 classdef FRA_data < handle
@@ -75,7 +79,7 @@ classdef FRA_data < handle
             Phi = phase_shift_correction(Phi);
         end
 
-        function Data_diff = correction(obj)
+        function Data_diff = correction(obj, corr_obj)
             BS = @(f) (1i*2*pi*f);
             Bode_cplx = @(num, den, f) (num(1) + num(2)*BS(f) + num(3)*BS(f).^2)./...
                 (den(1) + den(2)*BS(f) + den(3)*BS(f).^2);

@@ -22,7 +22,7 @@ experimental_setup.I2V_converter.phase_inv = "non_inv";
 
 
 experimental_setup.freq_list = freq_list;
-experimental_setup.sample_voltage = 1.0; % V
+experimental_setup.sample_voltage = 1.0; % V FIXME
 experimental_setup.divider_value = 0.1;
 
 end

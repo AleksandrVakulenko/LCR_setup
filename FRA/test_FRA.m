@@ -4,19 +4,7 @@
 % Test for FRA measurement
 
 % ----TODO----:
-%  1) Add lock-in I-V converter
-%  2) Test lock-in I-V converter
-%  3) 
-%  4) Freq list generator
-%  5) sample ping (in progress)
-%  6) auto-range (in progress)
-%  7) Replace correction by interp1
-%  8) Add more stable settings
-%  9) FRA settings struct
-% 10) Sample info struct
-% 11) Add Harm measuring
-% 12) time predictor auto-update
-
+% list is now placed in FRA2
 % ------------
 
 
@@ -25,7 +13,7 @@ file_num = 5;
 
 %%
 clc
-
+error("OLD CODE ! need refactor")
 DLPCA200_COM_PORT = 4; % FIXME!!!!
 
 R_test = 1200; % Ohm
