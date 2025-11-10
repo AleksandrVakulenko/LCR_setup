@@ -43,17 +43,21 @@ Calibration_voltage = [2.0
                        0.0025
                        2.0
                        0.025
-                       0.000250
-                       ];
+                       0.000250];
 
 Calibration_res = [1000
                    1000
                    1000
                    100e6
                    100e6
-                   100e6
-                   ];
+                   100e6];
 
+REF_FILE_NAME = ["DATA_REF_1k.mat"
+                 "DATA_REF_1k.mat"
+                 "DATA_REF_1k.mat"
+                 "DATA_REF_1M.mat"
+                 "DATA_REF_1M.mat"
+                 "DATA_REF_1M.mat"];
 
 Calibration_repeat = 1;
 
@@ -68,7 +72,7 @@ Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
-for Cal_N = [1, 2, 3] % [1, 2, 3] OR [4, 5, 6, 7]
+for Cal_N = [1, 2, 3] % [4, 5, 6]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
     Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
     Voltage_gen = Calibration_voltage(Cal_N); % V
@@ -76,6 +80,8 @@ for Cal_N = [1, 2, 3] % [1, 2, 3] OR [4, 5, 6, 7]
     local_save_folder = ['Calibration_N_' num2str(Cal_N, "%02u") '\'];
     save_file_folder = [main_save_folder local_save_folder];
     mkdir(save_file_folder);
+
+    load(REF_FILE_NAME(Cal_N));
 
     for Cal_rep_i = 1:Calibration_repeat
 
@@ -137,7 +143,7 @@ for Cal_N = [1, 2, 3] % [1, 2, 3] OR [4, 5, 6, 7]
 
                 Data_corr = Data.correction();
 
-                Fig.replace_FRA_data(Data);
+                Fig.replace_FRA_data([Data Data_ref]);
             end
             % END MAIN --------------------------------------------------------------------
         catch Main_error
