@@ -18,7 +18,7 @@ experimental_setup.lockin.address = 4; % FIXME
 
 experimental_setup.I2V_converter.model = "Aster";
 experimental_setup.I2V_converter.class = "Aster_dev";
-experimental_setup.I2V_converter.address = 3; % FIXME
+experimental_setup.I2V_converter.address = 5; % FIXME
 experimental_setup.I2V_converter.phase_inv = "inv";
 
 

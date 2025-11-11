@@ -43,21 +43,21 @@ Calibration_voltage = [2.0
                        0.0025
                        2.0
                        0.025
-                       0.000250];
+                       0.0025];
 
 Calibration_res = [1000
                    1000
                    1000
                    100e6
                    100e6
-                   100e6];
+                   1e9];
 
 REF_FILE_NAME = ["DATA_REF_1k.mat"
                  "DATA_REF_1k.mat"
                  "DATA_REF_1k.mat"
-                 "DATA_REF_1M.mat"
-                 "DATA_REF_1M.mat"
-                 "DATA_REF_1M.mat"];
+                 "DATA_REF_100M.mat"
+                 "DATA_REF_100M.mat"
+                 "DATA_REF_1G.mat"];
 
 Calibration_repeat = 1;
 
@@ -72,10 +72,11 @@ Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
-for Cal_N = [1, 2, 3] % [4, 5, 6]
+for Cal_N = 6%[1, 2, 3] % [4, 5] [6]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
-    Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
+    %Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
     Voltage_gen = Calibration_voltage(Cal_N); % V
+    Sense_Level = Voltage_gen/R_test;
 
     local_save_folder = ['Calibration_N_' num2str(Cal_N, "%02u") '\'];
     save_file_folder = [main_save_folder local_save_folder];
@@ -127,7 +128,7 @@ for Cal_N = [1, 2, 3] % [4, 5, 6]
                 end
 
                 % FIXME: Lock_in_measure is bad!
-                [Amp, Phase] = Lock_in_measure(Lockin, ...
+                [Amp, Phase, G_volt] = Lock_in_measure(Lockin, ...
                     Voltage_gen, freq, Delta_limit, "fine", save_pack);
 
                 Amp = Amp*Sense_V2C*sqrt(2)/Divider_value;
@@ -135,13 +136,13 @@ for Cal_N = [1, 2, 3] % [4, 5, 6]
                 % FIXME: add calibration correction here
 
                 % FIXME: add impedance calc
-                %  Amp = Voltage_gen./Amp;
+                Amp = G_volt./Amp;
 
                 time = toc(Timer);
                 Time_arr(i) = time;
                 Data.add(freq, "R", Amp, "Phi", Phase);
 
-                Data_corr = Data.correction();
+%                 Data_corr = Data.correction();
 
                 Fig.replace_FRA_data([Data Data_ref]);
             end

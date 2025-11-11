@@ -1,4 +1,4 @@
-function [Amp, Phase] = Lock_in_measure(SR860, Voltage_gen, freq, ...
+function [Amp, Phase, G_volt] = Lock_in_measure(SR860, Voltage_gen, freq, ...
     Delta_limit, times_option, save_pack)
 
 Lockin_Tc = 0.25; % FIXME
@@ -6,6 +6,7 @@ Lockin_Tc = 0.25; % FIXME
 %---Lock_in SET------------------------
 Voltage_gen_rms = Voltage_gen/sqrt(2);
 SR860.set_gen_config(Voltage_gen_rms, freq);
+G_volt = SR860.get_genVF()*sqrt(2);
 % TODO: could Tc be small in case of sync adaptive filter???
 SR860.set_time_constant(Lockin_Tc);
 %-------------------------------------
