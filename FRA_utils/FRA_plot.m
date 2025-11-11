@@ -43,9 +43,11 @@ classdef FRA_plot < handle
             obj.fig = figure('Position', [440 240 690 745], 'Resize', 'on');
 
             subplot('Position', [0.093    0.568    0.85    0.40])
+            hold on
             FRA_plot_design(gca, obj.freq_list, obj.ylabel_top, obj.style)
 
             subplot('Position', [0.093    0.086    0.85    0.40])
+            hold on
             FRA_plot_design(gca, obj.freq_list, obj.ylabel_bot, obj.style)
 
             ax_arr = obj.fig.Children;
@@ -54,28 +56,45 @@ classdef FRA_plot < handle
 
         end
 
-        function replace(obj, F_arr, A_arr, P_arr)
+        function clear_axis(obj)
+            figure(obj.fig)
+            axes(obj.axis_top)
+            cla
+            axes(obj.axis_bot)
+            cla
+        end
+
+
+        function replace(obj, F_arr, A_arr, P_arr, line_color)
             if obj.nonconst_freq_list
                 obj.freq_list = F_arr;
             end
             figure(obj.fig)
+    
+            LC = line_color;
 
             axes(obj.axis_top)
-            cla
-            plot(F_arr, A_arr, '.-b', 'MarkerSize', 8);
+%             cla
+            plot(F_arr, A_arr, ['.-' LC], 'MarkerSize', 8);
             FRA_plot_design(gca, obj.freq_list, obj.ylabel_top, obj.style)
 
             axes(obj.axis_bot)
-            cla
-            plot(F_arr, P_arr, '.-b', 'MarkerSize', 8);
+%             cla
+            plot(F_arr, P_arr, ['.-' LC], 'MarkerSize', 8);
             FRA_plot_design(gca, obj.freq_list, obj.ylabel_bot, obj.style)
 
-            drawnow
+%             drawnow
         end
 
-        function replace_FRA_data(obj, Data)
-            [F_arr, A_arr, P_arr] = Data.RPhi;
-            obj.replace(F_arr, A_arr, P_arr);
+        function replace_FRA_data(obj, Dataset)
+            obj.clear_axis;
+            color_array = 'brgykmc';
+            for i = 1:numel(Dataset)
+                Data = Dataset(i);
+                [F_arr, A_arr, P_arr] = Data.RPhi;
+                obj.replace(F_arr, A_arr, P_arr, color_array(i));
+            end
+            drawnow
         end
 
     end

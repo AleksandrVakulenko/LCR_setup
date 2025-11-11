@@ -12,7 +12,7 @@ Freq = [];
 R = [];
 Phi = [];
 
-for loop_counter = 1:6
+for loop_counter = 1:3
     loop_counter
     Filename = ['cfile_' num2str(Folder_N, "%02u") '_' ...
         num2str(loop_counter, "%02u") '_R.mat'];
@@ -39,7 +39,7 @@ figure('position', [535 135 670 800])
 subplot(2, 1, 1)
 hold on
 for loop_counter = 1:size(R, 1)
-    plot(Freq_log, R(loop_counter, :), '-r')
+    plot(Freq, R(loop_counter, :), '-r')
 end
 xlabel('log_1_0(f)');
 ylabel('R');
@@ -48,7 +48,7 @@ grid on
 subplot(2, 1, 2)
 hold on
 for loop_counter = 1:size(R, 1)
-    plot(Freq_log, Phi(loop_counter, :), '-r')
+    plot(Freq, Phi(loop_counter, :), '-r')
 end
 xlabel('log_1_0(f)');
 ylabel('Phi');
@@ -61,11 +61,12 @@ R_errors = 3*std(R, 1);
 Phi_errors = 3*std(Phi, 1);
 
 subplot(2, 1, 1)
-errorbar(Freq_log, R_mean, R_errors, '-b')
+errorbar(Freq, R_mean, R_errors, '-b')
+set(gca, 'xscale','log')
 
 subplot(2, 1, 2)
-errorbar(Freq_log, Phi_mean, Phi_errors, '-b')
-
+errorbar(Freq, Phi_mean, Phi_errors, '-b')
+set(gca, 'xscale','log')
 
 %% CREATE STRUCT
 
