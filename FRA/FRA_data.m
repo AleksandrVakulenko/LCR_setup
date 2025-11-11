@@ -74,6 +74,8 @@ classdef FRA_data < handle
 
         function [freq, R, Phi] = RPhi(obj)
             freq = obj.freq;
+            obj.X
+            obj.Y
             R = sqrt(obj.X.^2 + obj.Y.^2);
             Phi = atan2(obj.Y, obj.X)*180/pi;
             Phi = phase_shift_correction(Phi);

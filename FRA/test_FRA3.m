@@ -59,11 +59,11 @@ REF_FILE_NAME = ["DATA_REF_1k.mat"
                  "DATA_REF_100M.mat"
                  "DATA_REF_1G.mat"];
 
-Calibration_repeat = 1;
+Calibration_repeat = 6;
 
 %%
 % error('UPDATE folder')
-main_save_folder = '..\..\test_results_2025_11_10\';
+main_save_folder = '..\..\test_results_2025_11_11\';
 mkdir(main_save_folder);
 %%
 clc
@@ -72,7 +72,7 @@ Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
-for Cal_N = 6%[1, 2, 3] % [4, 5] [6]
+for Cal_N = [1, 2, 3] % [4, 5] [6]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
     %Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
     Voltage_gen = Calibration_voltage(Cal_N); % V
