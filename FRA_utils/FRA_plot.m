@@ -90,6 +90,7 @@ classdef FRA_plot < handle
             obj.clear_axis;
             color_array = 'brgykmc';
             for i = 1:numel(Dataset)
+                i
                 Data = Dataset(i);
                 [F_arr, A_arr, P_arr] = Data.RPhi;
                 obj.replace(F_arr, A_arr, P_arr, color_array(i));
