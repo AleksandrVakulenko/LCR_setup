@@ -17,14 +17,15 @@ function [Lockin, Ammeter] = init_devices(experimental_setup)
     end
     
     Ready = false;
-    for i = 1:3
+    for i = 1:10
         e = [];
         try
             Ammeter = feval(Ammeter_class, Ammeter_address);
             Ammeter.initiate();
         catch e
-            disp(['Ammeter init error (try ' num2str(i) ')']);
-            pause(0.5)
+            disp(['----- Ammeter init error (try ' num2str(i) ') -----']);
+            disp(e.message);
+            pause(1.0)
         end
         if isempty(e)
             Ready = true;

@@ -84,7 +84,12 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 
     load(REF_FILE_NAME(Cal_N));
 
-    for Cal_rep_i = 1:Calibration_repeat
+    if Cal_N == 1
+        Calibration_repeat_arr = [5, 6];
+    else
+        Calibration_repeat_arr = 1:Calibration_repeat;
+    end
+    for Cal_rep_i = Calibration_repeat_arr
 
         experimental_setup = Aster_calibration();
 
