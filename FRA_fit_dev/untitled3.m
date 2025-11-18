@@ -8,7 +8,7 @@ load(filename);
 A_arr = A_arr(Perm);
 P_arr = P_arr(Perm);
 
-P_arr = phase_shift_correction(P_arr);
+P_arr = FRA_utils.phase_shift_correction(P_arr);
 % P_arr = P_arr +  100;
 
 range = F_arr > 1000000;

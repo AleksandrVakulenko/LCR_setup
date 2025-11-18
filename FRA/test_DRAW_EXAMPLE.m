@@ -47,8 +47,7 @@ end
 
 %%
 
-filename = 'test_03_R.mat';
-% filename = 'test_04_C.mat';
+filename = 'test_04_R.mat';
 
 load(['test_results\' filename])
 P_arr(P_arr<0) = P_arr(P_arr<0)+360;

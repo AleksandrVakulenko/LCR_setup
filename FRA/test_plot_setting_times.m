@@ -56,12 +56,11 @@ P(6) = plot(1./freq_list, Wait_time_array+Stable_timeout_array, '-m', 'LineWidth
 P(7) = plot(1./freq_list, Max_time_array, '--k', 'LineWidth', 1.5);
 
 
-set(gca, 'xscale', 'log')
-set(gca, 'yscale', 'log')
 grid on
 box on
-set_axis_ticks(gca, "SI", "x");
-set_axis_ticks(gca, "SI", "y");
+
+Plotlib.log_scale("xy", "SI")
+
 legend(P, 'Location', 'northwest')
 
 

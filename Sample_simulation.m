@@ -58,9 +58,8 @@ xlim([1e-15 1])
 xlabel('I, A')
 ylabel('PDF')
 grid on
-set(gca, 'xscale', 'log')
-set_axis_ticks(gca, "auto", "x")
-% set(gca, 'xscale', 'log')
+
+Plotlib.log_scale("x")
 % xlim([1e-15 1e-2])
 
 

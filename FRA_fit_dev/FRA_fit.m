@@ -13,7 +13,7 @@ load(filename);
 A_arr = A_arr(Perm);
 P_arr = P_arr(Perm);
 
-P_arr = phase_shift_correction(P_arr);
+P_arr = FRA_utils.phase_shift_correction(P_arr);
 % P_arr = P_arr +  100;
 
 range = F_arr > 1000000;
@@ -89,7 +89,7 @@ options = optimoptions('lsqnonlin', ...
 
 A_model = Bode_abs(vout(1:3), vout(4:6), F_arr);
 Phi_model = Bode_phi(vout(1:3), vout(4:6), F_arr);
-Phi_model = phase_shift_correction(Phi_model);
+Phi_model = FRA_utils.phase_shift_correction(Phi_model);
 
 
 figure('Position', [412 157 737 775])
@@ -125,7 +125,7 @@ F_model = 10.^linspace(log10(0.1), log10(10e3), 1000);
 
 A_model = Bode_abs(vout(1:3), vout(4:6), F_arr);
 Phi_model = Bode_phi(vout(1:3), vout(4:6), F_arr);
-Phi_model = phase_shift_correction(Phi_model);
+Phi_model = FRA_utils.phase_shift_correction(Phi_model);
 
 figure('Position', [412 157 737 775])
 subplot(2, 1, 1)
@@ -179,7 +179,7 @@ xlim([0.01 100])
 
 
 
-P_arr = phase_shift_correction(P_arr);
+P_arr = FRA_utils.phase_shift_correction(P_arr);
 
 figure
 hold on
@@ -194,7 +194,7 @@ set(gca, 'xscale', 'log')
 
 
 
-function P_arr = phase_shift_correction(P_arr)
+function P_arr = FRA_utils.phase_shift_correction(P_arr)
     D_P_Arr = diff(P_arr);
     range_p = D_P_Arr > 180;
     range_n = D_P_Arr < -180;

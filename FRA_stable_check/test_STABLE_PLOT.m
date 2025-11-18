@@ -39,7 +39,8 @@ title([num2str(N) ' | ' num2str(freq) ' Hz'])
 %%
 clc
 
-i = 275;
+% i = 275;
+i = 271;
 load(names_out(i).full_path);
 
 time = Stable_Data.time;
@@ -50,17 +51,37 @@ freq = Stable_Data.pack.freq;
 
 
 Stable_init_num = 10;
-Stable_timeout = 10; % s
-Delta_limit = 100e-6;
+Delta_limit = 50e-6;
 
 
 SR860 = SR860_dummy(X, Y);
 
+%
+times_option = "common";
+
+%---TIMES-----------------------------
+Period = 1/freq;
+if times_option == "common"
+    Times_conf = get_time_conf_common(Period);
+elseif times_option == "fine"
+    Times_conf = get_time_conf_fine(Period);
+else
+    Times_conf = get_time_conf_common(Period);
+end
+[Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
+%-------------------------------------
+
+% Wait befor stable check
+% adev_utils.Wait(Wait_time, 'Wait one Wait_time');
+
+
+%
+
 Stable_checker = stable_check(SR860, Delta_limit, "ppm", ...
-    [], Stable_init_num, Stable_timeout);
+    [], Stable_Time_interval, Stable_init_num, Stable_timeout*2);
 
 
-figure('Position', [464   257   665   789])
+figure('Position', [464   130   665   789])
 
 i = 1;
 % stable = Stable_checker.test;
