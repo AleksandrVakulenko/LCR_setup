@@ -4,14 +4,15 @@ clc
 Freq_min = 0.00001; % Hz
 Freq_max = 5000; % Hz
 Freq_num = 500;
-Freq_permutation = false;
+
+freq_list = 10.^linspace(log10(Freq_min), log10(Freq_max), Freq_num);
+freq_list = flip(freq_list);
+
 
 Delta_limit = 100e-6;
 Stable_init_num = 10;
 
 Lockin_Tc = 0.25;
-
-[freq_list, min_time] = freq_list_gen(Freq_min, Freq_max, Freq_num);
 
 Max_time_array = [];
 Wait_time_array = [];
@@ -19,7 +20,7 @@ Stable_Time_array = [];
 Stable_timeout_array = [];
 for i = 1:numel(freq_list)
     freq = freq_list(i);
-    disp(['freq = ' num2str(freq) ' Hz'])
+%     disp(['freq = ' num2str(freq) ' Hz'])
     Period = 1/freq;
     time_const = find_best_time_constant(Lockin_Tc);
 
@@ -79,7 +80,7 @@ if time_const < Min_tc
     time_const = Min_tc;
 end
 if time_const > Max_tc
-    time_const = Max_tc
+    time_const = Max_tc;
 end
 
 [~, ind] = min(abs(tc_array-time_const));
