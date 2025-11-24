@@ -10,7 +10,7 @@
 % ----TODO----:
 % ------------
 
-classdef single_stable_check < handle
+classdef stable_check_single < handle
     properties
         Delta_limit
         Init_num
@@ -25,7 +25,7 @@ classdef single_stable_check < handle
     end
 
     methods (Access = public)
-        function obj = single_stable_check(Init_num, Delta_limit, Time_interval)
+        function obj = stable_check_single(Init_num, Delta_limit, Time_interval)
             arguments
                 Init_num (1,1) double ...
                     {mustBeGreaterThanOrEqual(Init_num, 2)} = 10;

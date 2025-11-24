@@ -13,13 +13,8 @@ SR860.set_time_constant(Lockin_Tc);
 
 %---TIMES-----------------------------
 Period = 1/freq;
-if times_option == "common"
-    Times_conf = get_time_conf_common(Period);
-elseif times_option == "fine"
-    Times_conf = get_time_conf_fine(Period);
-else
-    Times_conf = get_time_conf_common(Period);
-end
+% FIXME: add dependencies requirement
+Times_conf = get_time_config(Period, times_option);
 [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
 %-------------------------------------
 

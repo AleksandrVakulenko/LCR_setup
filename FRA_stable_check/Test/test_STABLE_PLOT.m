@@ -1,7 +1,7 @@
 
 clc
 
-folder = '../FRA/Debug_stable_data/';
+folder = '../../FRA/Debug_stable_data/';
 names_out = find_stable_data_files(folder);
 
 
@@ -26,7 +26,7 @@ end
 clc
 
 fig = [];
-i = 20;
+i = 25;
 load(names_out(i).full_path);
 
 N = Stable_Data.pack.i;
@@ -61,13 +61,8 @@ times_option = "common";
 
 %---TIMES-----------------------------
 Period = 1/freq;
-if times_option == "common"
-    Times_conf = get_time_conf_common(Period);
-elseif times_option == "fine"
-    Times_conf = get_time_conf_fine(Period);
-else
-    Times_conf = get_time_conf_common(Period);
-end
+
+Times_conf = get_time_config(Period, times_option);
 [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
 %-------------------------------------
 

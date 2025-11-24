@@ -2,7 +2,7 @@
 %
 % ----INFO----:
 % Class for check SR860 data stability.
-% works with two single_stable_check classes
+% works with two stable_check_single classes
 %   for X and Y outputs
 %
 % ----SETTINGS----:
@@ -59,8 +59,8 @@ classdef stable_check < handle
             obj.Disp_mode = Disp_mode;
             obj.Stable_timeout = timeout_s;
             obj.Data_save = Data_save;
-            obj.Single_check_X = single_stable_check(Init_num, Delta_limit, Time_interval);
-            obj.Single_check_Y = single_stable_check(Init_num, Delta_limit, Time_interval);
+            obj.Single_check_X = stable_check_single(Init_num, Delta_limit, Time_interval);
+            obj.Single_check_Y = stable_check_single(Init_num, Delta_limit, Time_interval);
         end
 
         function stable = test(obj)
@@ -69,7 +69,7 @@ classdef stable_check < handle
 
             [~, Delta_X] = obj.Single_check_X.test(X);
             [~, Delta_Y] = obj.Single_check_Y.test(Y);
-            Delta0 = abs(Delta_X) + abs(Delta_Y);
+%             Delta0 = abs(Delta_X) + abs(Delta_Y);
             Delta = abs(X)*abs(Delta_X) + abs(Y)*abs(Delta_Y);
 
 %             disp(' ')

@@ -3,7 +3,9 @@ Full_time_max = 0;
 Full_time_min = 0;
 for i = 1:numel(freq_list)
     Period = 1/freq_list(i);
-    Times_conf = get_time_conf_common(Period);
+    % FIXME: why common?
+    % FIXME: add dependencies requirement
+    Times_conf = get_time_config(Period, 'common');
     [Wait_time, Stable_Time_interval, Stable_timeout] = Times_calc(Times_conf);
 
     Max_time = Times_conf.Max_meas_time_fraction_of_period * Period;
