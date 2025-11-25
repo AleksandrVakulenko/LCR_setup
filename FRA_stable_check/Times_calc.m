@@ -1,4 +1,6 @@
-function [Wait_time, Stable_interval, Stable_timeout, Max_meas_time] = Times_calc(Times_conf)
+function [Wait_time, Stable_interval, Stable_timeout, ...
+    Max_meas_time, Averaging_time] = Times_calc(Times_conf)
+
 Period = Times_conf.Period;
 Max_meas_time_fop = Times_conf.Max_meas_time_fraction_of_period; % [1]
 Wait_fop = Times_conf.Wait_fraction_of_period; % [1]
@@ -12,8 +14,7 @@ Max_meas_time = Period*Max_meas_time_fop;
 if Period <= Wait_min
     Wait_time = Wait_min;
 else
-    Wait_time = Wait_fop*Period + ...
-        Wait_min*(1-Wait_fop);
+    Wait_time = Wait_fop*Period + Wait_min*(1-Wait_fop);
 end
 
 Last_meas_time = Max_meas_time - Wait_time;
@@ -32,4 +33,7 @@ end
 if Stable_timeout < Min_number_of_stab_inters * Stable_interval
     Stable_timeout = Min_number_of_stab_inters * Stable_interval;
 end
+
+Averaging_time = Stable_interval_min;
+
 end
