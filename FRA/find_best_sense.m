@@ -1,16 +1,16 @@
 function find_best_sense(SR860, Voltage_gen)
 Delta_limit = 200e-6;
 
-freq = 10;
+freq = 1;
 
 SR860.set_sensitivity(1, "voltage"); % FIXME: need auto-mode
 [Amp, ~] = Lock_in_measure(SR860, ...
-    Voltage_gen, freq, Delta_limit, "common", []);
+    Voltage_gen, freq, Delta_limit, "fine", []);
 
 if Amp < 0.001
     SR860.set_sensitivity(0.002, "voltage"); % FIXME: need auto-mode
     [Amp, ~] = Lock_in_measure(SR860, ...
-        Voltage_gen, freq, Delta_limit, "common", []);
+        Voltage_gen, freq, Delta_limit, "fine", []);
 end
 
 if Amp < 1/1.2

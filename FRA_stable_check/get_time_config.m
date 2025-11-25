@@ -3,7 +3,7 @@ function Times_conf = get_time_config(Period, mode)
 arguments
     Period double
     mode string {mustBeMember(mode, ...
-        ["fine", "common", "most_accurate", "ultra_fast"])} = "common"
+        ["ultra_fast", "common", "fine", "most_accurate"])} = "common"
 end
 
 
