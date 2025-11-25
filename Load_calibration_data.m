@@ -2,9 +2,11 @@
 %% LOAD FILES
 clc
 
-Folder_root = 'test_results_2025_04_23';
+% Folder_root = 'test_results_2025_04_23';
 % Folder_root = 'test_results_2025_05_07';
-Folder_N = 7;
+Folder_root = 'test_results_2025_11_11';
+
+Folder_N = 1;
 
 Folder = [Folder_root '\' 'Calibration_N_' num2str(Folder_N, "%02u")];
 
@@ -12,15 +14,15 @@ Freq = [];
 R = [];
 Phi = [];
 
-for loop_counter = 1:3
+for loop_counter = 1:6
     loop_counter
     Filename = ['cfile_' num2str(Folder_N, "%02u") '_' ...
         num2str(loop_counter, "%02u") '_R.mat'];
     load([char(Folder) '\' char(Filename)]);
 
     [Freq_in, R_in, Phi_in] = Data.RPhi;
-    Calibration_current = Voltage_gen/R_test;
-    R_in = R_in/Calibration_current;
+%     Calibration_current = Voltage_gen/R_test;
+%     R_in = R_in/Calibration_current;
 
     Freq(loop_counter, :) = Freq_in;
     R(loop_counter, :) = R_in;
