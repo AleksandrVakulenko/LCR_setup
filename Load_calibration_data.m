@@ -4,9 +4,10 @@ clc
 
 % Folder_root = 'test_results_2025_04_23';
 % Folder_root = 'test_results_2025_05_07';
-Folder_root = 'test_results_2025_11_11';
+% Folder_root = 'test_results_2025_11_11';
+Folder_root = 'test_results_2025_11_25';
 
-Folder_N = 1;
+Folder_N = 6;
 
 Folder = [Folder_root '\' 'Calibration_N_' num2str(Folder_N, "%02u")];
 
@@ -18,7 +19,8 @@ for loop_counter = 1:6
     loop_counter
     Filename = ['cfile_' num2str(Folder_N, "%02u") '_' ...
         num2str(loop_counter, "%02u") '_R.mat'];
-    load([char(Folder) '\' char(Filename)]);
+%     load([char(Folder) '\' char(Filename)]);
+    load([char(Folder) '\' char(Filename)], 'Data');
 
     [Freq_in, R_in, Phi_in] = Data.RPhi;
 %     Calibration_current = Voltage_gen/R_test;
