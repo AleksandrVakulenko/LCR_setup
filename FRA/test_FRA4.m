@@ -61,6 +61,12 @@ REF_FILE_NAME = ["DATA_REF_1k.mat"
 
 Calibration_repeat = 6;
 
+% FIXME: !!!
+% exclude re-init from loop
+% !!!!!!!!!!
+
+
+
 %%
 % error('UPDATE folder')
 main_save_folder = '..\..\test_results_2025_12_02\';
@@ -84,11 +90,14 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 
     load(REF_FILE_NAME(Cal_N));
 
-    if Cal_N == 1
-        Calibration_repeat_arr = [5, 6];
-    else
-        Calibration_repeat_arr = 1:Calibration_repeat;
-    end
+%     if Cal_N == 1
+%         Calibration_repeat_arr = [5, 6];
+%     else
+%         Calibration_repeat_arr = 1:Calibration_repeat;
+%     end
+
+    Calibration_repeat_arr = 1:Calibration_repeat;
+
     for Cal_rep_i = Calibration_repeat_arr
 
         experimental_setup = Aster_calibration();
@@ -142,16 +151,16 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                     [Amp, Phase, G_volt] = Lock_in_measure(Lockin, ...
                         Voltage_gen, freq, Delta_limit, "fine", save_pack);
     
-                    Amp = Amp*Sense_V2C*sqrt(2)/Divider_value;
+                    Amp_2 = Amp*Sense_V2C*sqrt(2)/Divider_value;
     
                     % FIXME: add calibration correction here
     
                     % FIXME: add impedance calc
-                    Amp = G_volt./Amp;
+                    Res = G_volt./Amp_2;
     
                     time = toc(Timer);
                     Time_arr(i) = time;
-                    Data.add(freq, "R", Amp, "Phi", Phase);
+                    Data.add(freq, "R", Res, "Phi", Phase);
     
     %                 Data_corr = Data.correction();
     

@@ -41,13 +41,15 @@ stop = false;
 while ~stop
     Time = toc(Local_timer);
     k = k + 1;
-    if Time > Averaging_time || k >= max_k
+    if Time > Averaging_time || k == max_k
         stop = true;
     end
    
     [Amp_arr(k), Phase_arr(k)] = SR860.data_get_R_and_Phase();
 end
 
+Amp_arr(k+1:end) = [];
+Phase_arr(k+1:end) = [];
 Amp = mean(Amp_arr);
 Phase = mean(Phase_arr);
 

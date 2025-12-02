@@ -17,7 +17,7 @@ SR860.set_sync_filter('on');
 SR860.set_expand(1, "XYR");
 SR860.set_sync_src("INT");
 SR860.set_harm_num(1);
-SR860.set_filter_slope("18 dB/oct"); % FIXME: add selection
+SR860.set_filter_slope("24 dB/oct"); % FIXME: add selection
 SR860.set_voltage_input_range(1);
 SR860.set_detector_phase(phase_shift);
 SR860.set_gen_config(100e-6, 1e3); % NOTE: gen off

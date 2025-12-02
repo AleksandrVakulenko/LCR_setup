@@ -1,5 +1,5 @@
 function find_best_sense(SR860, Voltage_gen)
-Delta_limit = 200e-6;
+Delta_limit = 50e-6;
 
 freq = 1;
 
@@ -17,7 +17,7 @@ if Amp < 1/1.2
     Amp = Amp*1.2;
 end
 
-SR860.set_sensitivity(Amp, "voltage");
+SR860.set_sensitivity(Amp*1.4, "voltage");
 
 %     disp(['Amp = ' num2str(Amp) ' V'])
 end
