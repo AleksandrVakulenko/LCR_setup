@@ -1,7 +1,5 @@
 
-Fern.load(...)
 
-%%
 
 
 experimental_setup = Aster_calibration();
@@ -15,7 +13,7 @@ Ammeter_address = experimental_setup.I2V_converter.address;
 clc
 
 N = 50;
-Array_result = zeros(1, N);
+Array_result = [];
 
 for i = 1:N
 
@@ -25,6 +23,7 @@ for i = 1:N
         try
             Ammeter = feval(Ammeter_class, Ammeter_address);
             stop = true;
+            disp(['OK (i: ' num2str(i) ')']);
         catch
             k = k + 1;
             disp(['Fail ' num2str(k) ' (i: ' num2str(i) ')']);
@@ -35,12 +34,49 @@ for i = 1:N
 
     Array_result(i) = k;
 
+    pause(0.5)
     delete(Ammeter);
-    pause(1);
+    pause(0.5);
 
 end
 %%
 
+hold on
+
+load('../Fail_test_FTI_backside.mat')
+plot(Array_result, '.-')
+
+load('../Fail_test_FTI_frontside_3.mat')
+plot(Array_result, '.-')
+
+load('../Fail_test_FTI_frontside_2.mat')
+plot(Array_result, '.-')
+
+load('../Fail_test_FTI_frontside_2_on_table.mat')
+plot(Array_result, '.-')
+
+%%
+
+clc
+
+Ammeter = feval(Ammeter_class, Ammeter_address);
+
+stop = false;
+LT = tic;
+while(~stop)
+time = toc(LT);
+if time > 50
+    stop = true;
+end
+
+Val = Ammeter.get_current_value();
+
+disp(Val);
+
+end
+
+delete(Ammeter);
+disp('END END END')
 
 
 
