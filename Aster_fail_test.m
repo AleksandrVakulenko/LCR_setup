@@ -1,12 +1,9 @@
 
 
 
-
-experimental_setup = Aster_calibration();
-
-Ammeter_class = experimental_setup.I2V_converter.class;
-Ammeter_address = experimental_setup.I2V_converter.address;
-
+Ammeter_class = "Aster_dev";
+% Ammeter_address = "/dev/ttyACM0";
+% Ammeter_address = 5;
 
 %%
 
