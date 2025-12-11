@@ -1,9 +1,17 @@
 
 
 
+Fern.load('aDevice')
+Fern.load('FRA_tools')
 Ammeter_class = "Aster_dev";
-% Ammeter_address = "/dev/ttyACM0";
-% Ammeter_address = 5;
+
+if isunix
+    Ammeter_address = "/dev/ttyACM0";
+elseif ispc
+    Ammeter_address = 5;
+else
+    error('OS error')
+end
 
 %%
 
@@ -21,7 +29,8 @@ for i = 1:N
             Ammeter = feval(Ammeter_class, Ammeter_address);
             stop = true;
             disp(['OK (i: ' num2str(i) ')']);
-        catch
+        catch err
+            warning(err.message)
             k = k + 1;
             disp(['Fail ' num2str(k) ' (i: ' num2str(i) ')']);
             pause(0.25);
