@@ -61,11 +61,6 @@ REF_FILE_NAME = ["DATA_REF_1k.mat"
 
 Calibration_repeat = 6;
 
-% FIXME: !!!
-% exclude re-init from loop
-% !!!!!!!!!!
-
-
 
 %%
 % error('UPDATE folder')
@@ -78,6 +73,15 @@ Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
+experimental_setup = Aster_calibration();
+freq_list = experimental_setup.freq_list;
+Phase_inv = experimental_setup.I2V_converter.phase_inv;
+Divider_value = experimental_setup.divider_value;
+% Voltage_gen = experimental_setup.sample_voltage; % V
+
+% DEV INIT
+[Lockin, Ammeter] = init_devices(experimental_setup);
+
 for Cal_N = [1, 2, 3] % [4, 5] [6]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
     %Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
@@ -88,7 +92,11 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
     save_file_folder = [main_save_folder local_save_folder];
     mkdir(save_file_folder);
 
+    
+    CORR_FILE_NAME = fullfile(['Correction_data/' 'corr_Aster_dev_range_' ...
+                           num2str(Cal_N) '.mat']);
     load(REF_FILE_NAME(Cal_N));
+    load(CORR_FILE_NAME, "Correction_data");
 
 %     if Cal_N == 1
 %         Calibration_repeat_arr = [5, 6];
@@ -100,22 +108,12 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 
     for Cal_rep_i = Calibration_repeat_arr
 
-        experimental_setup = Aster_calibration();
-
         if save_files_flag
             filename = [save_file_folder 'cfile_' ...
                 num2str(Cal_N, '%02u') '_' ...
                 num2str(Cal_rep_i, '%02u') ...
                 '_R.mat'];
         end
-
-        freq_list = experimental_setup.freq_list;
-        Phase_inv = experimental_setup.I2V_converter.phase_inv;
-        Divider_value = experimental_setup.divider_value;
-        % Voltage_gen = experimental_setup.sample_voltage; % V
-
-        % DEV INIT
-        [Lockin, Ammeter] = init_devices(experimental_setup);
 
         % MAIN -----------------------------------------------------------------
         Main_error = [];
@@ -128,7 +126,7 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
             Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
 
             Time_arr = zeros(size(freq_list)); % FIXME: create time monitor
-            Data = FRA_data('I, [A]'); % FIXME: refactor this class
+            Data = FRA_data('R, [Ohm]'); % FIXME: refactor this class
             Timer = tic;
             for i = 1:numel(freq_list)
                 freq = freq_list(i);
@@ -153,7 +151,7 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
     
                     Amp_2 = Amp*Sense_V2C*sqrt(2)/Divider_value;
     
-                    % FIXME: add calibration correction here
+                    % FIXME: add raw data calibration correction here
     
                     % FIXME: add impedance calc
                     Res = G_volt./Amp_2;
@@ -162,7 +160,8 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                     Time_arr(i) = time;
                     Data.add(freq, "R", Res, "Phi", Phase);
     
-    %                 Data_corr = Data.correction();
+                    % R-Phi correction here
+                    Data = apply_correction(Data, Correction_data);
     
                     Fig.replace_FRA_data([Data Data_ref]);
                 end
@@ -199,3 +198,40 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
     end % Calibration loops end
 end
 
+
+
+
+
+function Data_out = apply_correction(Data, Correction_data)
+
+Corr_data = copy(Correction_data);
+Data_to_corr = copy(Data);
+% Data_to_corr.freq = Data_to_corr.freq(9:10);
+% Data_to_corr.X = Data_to_corr.X(9:10);
+% Data_to_corr.Y = Data_to_corr.Y(9:10);
+
+freq_min = min(Data_to_corr.freq);
+
+if freq_min < min(Corr_data.freq)
+    corr_freq = Corr_data.freq;
+    corr_x = Corr_data.X;
+    corr_y = Corr_data.Y;
+
+    [corr_freq, ind] = sort(corr_freq);
+    corr_x = corr_x(ind);
+    corr_y = corr_y(ind);
+    
+    corr_freq = [freq_min corr_freq];
+    corr_x = [corr_x(1) corr_x];
+    corr_y = [corr_y(1) corr_y];
+
+    Corr_data.freq = corr_freq;
+    Corr_data.X = corr_x;
+    Corr_data.Y = corr_y;
+end
+
+Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
+
+Data_out = Data_to_corr * Correction_data_part;
+
+end
