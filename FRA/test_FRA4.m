@@ -64,7 +64,7 @@ Calibration_repeat = 6;
 
 %%
 % error('UPDATE folder')
-main_save_folder = '..\..\test_results_2025_12_02\';
+main_save_folder = '..\..\test_results_2025_12_11\';
 mkdir(main_save_folder);
 %%
 clc
@@ -81,6 +81,7 @@ Divider_value = experimental_setup.divider_value;
 
 % DEV INIT
 [Lockin, Ammeter] = init_devices(experimental_setup);
+Main_error = [];
 
 for Cal_N = [1, 2, 3] % [4, 5] [6]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
@@ -98,13 +99,15 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
     load(REF_FILE_NAME(Cal_N));
     load(CORR_FILE_NAME, "Correction_data");
 
-%     if Cal_N == 1
-%         Calibration_repeat_arr = [5, 6];
-%     else
-%         Calibration_repeat_arr = 1:Calibration_repeat;
-%     end
+    if Cal_N == 1
+        Calibration_repeat_arr = [];
+    elseif Cal_N == 2
+        Calibration_repeat_arr = 3:6;
+    else
+        Calibration_repeat_arr = 1:Calibration_repeat;
+    end
 
-    Calibration_repeat_arr = 1:Calibration_repeat;
+%     Calibration_repeat_arr = 1:Calibration_repeat;
 
     for Cal_rep_i = Calibration_repeat_arr
 
@@ -116,14 +119,13 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
         end
 
         % MAIN -----------------------------------------------------------------
-        Main_error = [];
         try
             SR860_set_common_profile(Lockin, Phase_inv); %FIXME: refactor
             %     Current_max = Voltage_gen/R_test;
             Sense_V2C = Ammeter.set_sensitivity(Sense_Level);
             BW_limit = Ammeter.get_bandwidth();
             find_best_sense(Lockin, Voltage_gen); % FIXME: undone sample ping
-            Fig = FRA_plot(freq_list, 'I, A', 'Phase, °');
+            Fig = FRA_plot(freq_list, 'R, Ohm', 'Phase, °');
 
             Time_arr = zeros(size(freq_list)); % FIXME: create time monitor
             Data = FRA_data('R, [Ohm]'); % FIXME: refactor this class
@@ -161,22 +163,17 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                     Data.add(freq, "R", Res, "Phi", Phase);
     
                     % R-Phi correction here
-                    Data = apply_correction(Data, Correction_data);
+                    Data2 = apply_correction(Data, Correction_data);
     
                     Fig.replace_FRA_data([Data Data_ref]);
+                    Fig.replace_FRA_data([Data Data2]);
+%                     Fig.replace_FRA_data([Correction_data]);
                 end
             end
             % END MAIN --------------------------------------------------------------------
         catch Main_error
 
         end
-
-        Lockin.terminate();
-        delete(Lockin);
-
-        Ammeter.terminate();
-        delete(Ammeter);
-
 
         if isempty(Main_error)
             disp("Finished without errors")
@@ -191,6 +188,22 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
             end
 
         else
+            try
+                Lockin.terminate();
+            catch
+                warning("Err while Lockin termination")
+            end
+            delete(Lockin);
+            disp("Lockin closed (with error)")
+    
+            try
+                Ammeter.terminate();
+            catch
+                warning("Err while Ammeter termination")
+            end
+            delete(Ammeter);
+            disp("Ammeter closed (with error)")
+
             rethrow(Main_error);
         end
 
@@ -199,13 +212,30 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 end
 
 
+Lockin.terminate();
+delete(Lockin);
+disp("Lockin closed")
+
+Ammeter.terminate();
+delete(Ammeter);
+disp("Ammeter closed")
+
+
+
+
+
+
+
+
+
+
 
 
 
 function Data_out = apply_correction(Data, Correction_data)
 
-Corr_data = copy(Correction_data);
-Data_to_corr = copy(Data);
+Corr_data = Correction_data.copy;
+Data_to_corr = Data.copy;
 % Data_to_corr.freq = Data_to_corr.freq(9:10);
 % Data_to_corr.X = Data_to_corr.X(9:10);
 % Data_to_corr.Y = Data_to_corr.Y(9:10);
@@ -235,3 +265,36 @@ Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
 Data_out = Data_to_corr * Correction_data_part;
 
 end
+
+
+function Data_out = interp_FRA_data(Data, Target)
+
+Freq_tg = Target.freq;
+
+Freq = Data.freq;
+X = Data.X;
+Y = Data.Y;
+
+X_out = interp1(Freq, X, Freq_tg);
+Y_out = interp1(Freq, Y, Freq_tg);
+
+Data_out = FRA_data(Data.unit, Freq_tg, "X", X_out, "Y", Y_out);
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
