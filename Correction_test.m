@@ -39,9 +39,9 @@ Data_out = apply_correction(Data_new, Correction_data);
 
 
 Fig = FRA_plot;
-Fig.replace_FRA_data([Data_to_corr Data_out]);
+% Fig.replace_FRA_data([Data_to_corr Data_out]);
 % Fig.replace_FRA_data(Corr_data)
-% Fig.replace_FRA_data([Corr_data Data_new])
+Fig.replace_FRA_data([Data_out Data_new])
 
 
 
@@ -49,6 +49,20 @@ Fig.replace_FRA_data([Data_to_corr Data_out]);
 
 
 
+function Data_out = interp_FRA_data(Data, Target)
+
+Freq_tg = Target.freq;
+
+Freq = Data.freq;
+X = Data.X;
+Y = Data.Y;
+
+X_out = interp1(Freq, X, Freq_tg);
+Y_out = interp1(Freq, Y, Freq_tg);
+
+Data_out = FRA_data(Data.unit, Freq_tg, "X", X_out, "Y", Y_out);
+
+end
 
 
 
