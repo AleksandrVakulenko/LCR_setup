@@ -107,7 +107,8 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 %         Calibration_repeat_arr = 1:Calibration_repeat;
 %     end
 
-    Calibration_repeat_arr = 1:Calibration_repeat;
+
+%     Calibration_repeat_arr = 1:Calibration_repeat;
 
     for Cal_rep_i = Calibration_repeat_arr
 
