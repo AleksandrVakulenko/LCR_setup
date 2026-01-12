@@ -45,13 +45,6 @@ Fig.replace_FRA_data([Data_out Data_new])
 
 
 
-
-
-
-
-
-
-
 function Data_out = apply_correction(Data, Correction_data)
 
 Corr_data = copy(Correction_data);
@@ -85,4 +78,5 @@ Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
 Data_out = Data_to_corr * Correction_data_part;
 
 end
+
 

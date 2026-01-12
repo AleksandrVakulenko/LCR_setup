@@ -148,9 +148,21 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                             'freq_list', freq_list, 'freq', freq, 'i', i);
                     end
     
+                    % Aster start rec >>>>
+                    % Draw_obj = DWM_graph(fig);
+                    % FIXME: add sparse of active line to DWM_graph
+                    Ammeter.CMD_data_stream(true);
+                    % >>>>>>>>>>>>>>>>>>>>
+
                     % FIXME: Lock_in_measure is bad!
                     [Amp, Phase, G_volt] = Lock_in_measure(Lockin, ...
                         Voltage_gen, freq, Delta_limit, "fine", save_pack);
+
+                    % Aster end rec <<<<<<
+                    Ammeter.CMD_data_stream(false);
+                    [Current, Time_data, OVLD] = Ammeter.read_data();
+                    % <<<<<<<<<<<<<<<<<<<<
+                    
     
                     Amp_2 = Amp*Sense_V2C*sqrt(2)/Divider_value;
     
@@ -266,6 +278,4 @@ Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
 Data_out = Data_to_corr * Correction_data_part;
 
 end
-
-
 
