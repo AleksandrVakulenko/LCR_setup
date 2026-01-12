@@ -1,5 +1,6 @@
 
 clc
+addpath('../include/');
 
 clearvars Data_arr
 for i = 1:5
@@ -74,7 +75,6 @@ if freq_min < min(Corr_data.freq)
 end
 
 Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
-
 Data_out = Data_to_corr * Correction_data_part;
 
 end

@@ -12,6 +12,7 @@
 
 %% LOAD FILES
 clc
+addpath('../include/');
 
 % Folder_root = 'test_results_2025_04_23';
 % Folder_root = 'test_results_2025_05_07';

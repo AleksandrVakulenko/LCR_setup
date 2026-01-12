@@ -12,6 +12,7 @@
 
 %% LOAD FILES
 clc
+addpath('../include/');
 
 % Folder_root = 'test_results_2025_04_23';
 % Folder_root = 'test_results_2025_05_07';
@@ -62,7 +63,6 @@ R_mean = mean(R, 1);
 Phi_mean = mean(Phi, 1);
 
 Data_mean = FRA_data('R, [Ohm]', Freq, 'R', R_mean, 'Phi', Phi_mean);
-
 
 
 % Data_ref = interp_FRA_data(Data_ref, Data);

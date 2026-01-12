@@ -63,6 +63,10 @@ Calibration_repeat = 6;
 
 %%
 % error('UPDATE folder')
+Fern.load("aDevice");
+Fern.load("FRA_tools");
+addpath('FRA_stable_check');
+addpath('../include/');
 main_save_folder = '..\..\test_results_2025_11_11\';
 mkdir(main_save_folder);
 %%

@@ -1,4 +1,4 @@
-% Date: 2025.04.23
+% Date: 2026.01.12
 %
 % ----INFO----:
 % FRA measurement of calibration resistors
@@ -64,6 +64,10 @@ Calibration_repeat = 6;
 
 %%
 % error('UPDATE folder')
+Fern.load("aDevice");
+Fern.load("FRA_tools");
+addpath('FRA_stable_check');
+addpath('../include/');
 main_save_folder = '..\test_results_2025_12_22\';
 mkdir(main_save_folder);
 %%
@@ -274,7 +278,6 @@ if freq_min < min(Corr_data.freq)
 end
 
 Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
-
 Data_out = Data_to_corr * Correction_data_part;
 
 end
