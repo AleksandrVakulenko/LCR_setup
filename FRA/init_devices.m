@@ -1,6 +1,7 @@
 
 
-function [Lockin, Ammeter] = init_devices(experimental_setup)
+function [Lockin, Ammeter, Connector_board] = ...
+    init_devices(experimental_setup)
 
     Lockin_class = experimental_setup.lockin.class;
     Lockin_address = experimental_setup.lockin.address;
@@ -38,7 +39,8 @@ function [Lockin, Ammeter] = init_devices(experimental_setup)
         error("Ammeter init error")
     end
     
-    pause(0.5); % FIXME: debug
+    Connector_board = Ammeter;
 
+    pause(0.5); % FIXME: debug
 
 end

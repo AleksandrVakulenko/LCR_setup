@@ -59,7 +59,7 @@ REF_FILE_NAME = ["DATA_REF_1k.mat"
                  "DATA_REF_100M.mat"
                  "DATA_REF_1G.mat"];
 
-Calibration_repeat = 6;
+Calibration_repeat = 1;
 
 
 %%
@@ -70,6 +70,7 @@ addpath('FRA_stable_check');
 addpath('../include/');
 main_save_folder = '..\test_results_2025_12_22\';
 mkdir(main_save_folder);
+File_counter = 0;
 %%
 clc
 
@@ -77,14 +78,17 @@ Delta_limit = 50e-6;
 save_files_flag = true;
 save_stable_data = false;
 
-experimental_setup = Aster_calibration();
+% experimental_setup = Aster_calibration();
+experimental_setup = Aster_calibration_mid_freq();
+
 freq_list = experimental_setup.freq_list;
 Phase_inv = experimental_setup.I2V_converter.phase_inv;
 Divider_value = experimental_setup.divider_value;
 % Voltage_gen = experimental_setup.sample_voltage; % V
 
 % DEV INIT
-[Lockin, Ammeter] = init_devices(experimental_setup);
+[Lockin, Ammeter, Connector_board] = init_devices(experimental_setup);
+Connector_board.set_connection_mode('I2V');
 Main_error = [];
 
 for Cal_N = [1, 2, 3] % [4, 5] [6]
@@ -103,6 +107,7 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
     load(REF_FILE_NAME(Cal_N));
     load(CORR_FILE_NAME, "Correction_data");
 
+
 %     if Cal_N == 1
 %         Calibration_repeat_arr = [];
 %     elseif Cal_N == 2
@@ -110,9 +115,8 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 %     else
 %         Calibration_repeat_arr = 1:Calibration_repeat;
 %     end
+    Calibration_repeat_arr = 1:Calibration_repeat;
 
-
-%     Calibration_repeat_arr = 1:Calibration_repeat;
 
     for Cal_rep_i = Calibration_repeat_arr
 
@@ -152,27 +156,16 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                             'freq_list', freq_list, 'freq', freq, 'i', i);
                     end
     
-                    % Aster start rec >>>>
+                    % Aster start rec >>>>>>>>>>>>>>>>>>>>>>>>
                     % Draw_obj = DWM_graph(fig);
                     % FIXME: add sparse of active line to DWM_graph
                     Ammeter.CMD_data_stream(true);
-                    % >>>>>>>>>>>>>>>>>>>>
+                    % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
                     % FIXME: Lock_in_measure is bad!
                     [Amp, Phase, G_volt] = Lock_in_measure(Lockin, ...
                         Voltage_gen, freq, Delta_limit, "fine", save_pack);
 
-                    % Aster end rec <<<<<<
-                    Ammeter.CMD_data_stream(false);
-%                     [Current, Time_data, OVLD] = Ammeter.read_data();
-                    % FIXME: only for Aster read V(t), I(t):
-                    [Time_data, Voltage, Current, Current_OVLD] = ...
-                        Ammeter.get_CV(obj);
-                    title_str = [num2str(freq) 'Hz'];
-                    plot_VI(Time_data, Voltage, Current, title_str)
-                    % <<<<<<<<<<<<<<<<<<<<
-                    
-    
                     Amp_2 = Amp*Sense_V2C*sqrt(2)/Divider_value;
     
                     % FIXME: add raw data calibration correction here
@@ -180,6 +173,24 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                     % FIXME: add impedance calc
                     Res = G_volt./Amp_2;
     
+
+                    % Aster end rec <<<<<<<<<<<<<<<<<<<<<<<<<<
+                    Ammeter.CMD_data_stream(false);
+%                     [Current, Time_data, OVLD] = Ammeter.read_data();
+                    % FIXME: only for Aster read V(t), I(t):
+                    [Time_data, Voltage, Current, Current_OVLD] = ...
+                        Ammeter.get_CV(obj);
+                    title_str = [num2str(freq) 'Hz'];
+                    plot_VI(Time_data, Voltage, Current, title_str);
+                    File_counter = File_counter + 1;
+                    filename_tvi = [char(main_save_folder) '/' ...
+                        num2str(File_counter, '%04u') '.mat'];
+                    save(filename_tvi, "Time_data", "Voltage", "Current", ...
+                        "Current_OVLD", "freq", "R_test", "G_volt", ...
+                        "Amp_2", "Res", "Phase");
+                    % <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                    
                     time = toc(Timer);
                     Time_arr(i) = time;
                     Data.add(freq, "R", Res, "Phi", Phase);
@@ -187,8 +198,9 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
                     % R-Phi correction here
                     Data2 = apply_correction(Data, Correction_data);
     
-                    Fig.replace_FRA_data([Data Data_ref]);
-                    Fig.replace_FRA_data([Data Data2]);
+%                     Fig.replace_FRA_data([Data Data_ref]);
+%                     Fig.replace_FRA_data([Data Data2]);
+                    Fig.replace_FRA_data([Data2 Data_ref]);
 %                     Fig.replace_FRA_data([Correction_data]);
                 end
             end
