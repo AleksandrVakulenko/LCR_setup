@@ -164,7 +164,12 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
 
                     % Aster end rec <<<<<<
                     Ammeter.CMD_data_stream(false);
-                    [Current, Time_data, OVLD] = Ammeter.read_data();
+%                     [Current, Time_data, OVLD] = Ammeter.read_data();
+                    % FIXME: only for Aster read V(t), I(t):
+                    [Time_data, Voltage, Current, Current_OVLD] = ...
+                        Ammeter.get_CV(obj);
+                    title_str = [num2str(freq) 'Hz'];
+                    plot_VI(Time_data, Voltage, Current, title_str)
                     % <<<<<<<<<<<<<<<<<<<<
                     
     
