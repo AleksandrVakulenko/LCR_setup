@@ -39,7 +39,8 @@ function [Lockin, Ammeter, Connector_board] = ...
         error("Ammeter init error")
     end
     
-    Connector_board = Ammeter;
+%     Connector_board = Ammeter;
+    Connector_board = []; % FIXME: DEBUG
 
     pause(0.5); % FIXME: debug
 

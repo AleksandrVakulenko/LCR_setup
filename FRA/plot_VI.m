@@ -2,6 +2,8 @@ function plot_VI(t, V, I, title_str)
 
 figure('Position', [400 280 750 490])
 
+t = t - t(1);
+
 subplot(2, 1, 1)
 plot(t, V)
 title(title_str)

@@ -68,7 +68,7 @@ Fern.load("aDevice");
 Fern.load("FRA_tools");
 addpath('FRA_stable_check');
 addpath('../include/');
-main_save_folder = '..\test_results_2025_12_22\';
+main_save_folder = '..\test_results_2026_01_22_03\';
 mkdir(main_save_folder);
 File_counter = 0;
 %%
@@ -88,10 +88,10 @@ Divider_value = experimental_setup.divider_value;
 
 % DEV INIT
 [Lockin, Ammeter, Connector_board] = init_devices(experimental_setup);
-Connector_board.set_connection_mode('I2V');
+% Connector_board.set_connection_mode('I2V');
 Main_error = [];
 
-for Cal_N = [1, 2, 3] % [4, 5] [6]
+for Cal_N = 5 %[1, 2, 3] % [4, 5] [6]
     R_test = Calibration_res(Cal_N); % Ohm / 1e3, 1e6, 100e6, 1e9
     %Sense_Level = Calibration_sense_level(Cal_N); % 3(L), 4()L), 5(H), 6(H), 7(H), 8(H), 9(H)
     Voltage_gen = Calibration_voltage(Cal_N); % V
@@ -175,11 +175,13 @@ for Cal_N = [1, 2, 3] % [4, 5] [6]
     
 
                     % Aster end rec <<<<<<<<<<<<<<<<<<<<<<<<<<
-                    Ammeter.CMD_data_stream(false);
+                    
 %                     [Current, Time_data, OVLD] = Ammeter.read_data();
                     % FIXME: only for Aster read V(t), I(t):
                     [Time_data, Voltage, Current, Current_OVLD] = ...
-                        Ammeter.get_CV(obj);
+                        Ammeter.get_CV();
+                    Ammeter.CMD_data_stream(false);
+
                     title_str = [num2str(freq) 'Hz'];
                     plot_VI(Time_data, Voltage, Current, title_str);
                     File_counter = File_counter + 1;
