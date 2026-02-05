@@ -1,7 +1,7 @@
 
 clc
 
-folder = '../../FRA/Debug_stable_data/';
+folder = '../../Debug_stable_data/';
 names_out = find_stable_data_files(folder);
 
 
@@ -39,8 +39,10 @@ title([num2str(N) ' | ' num2str(freq) ' Hz'])
 %%
 clc
 
-% i = 275;
-i = 271;
+addpath('../')
+
+i = 275;
+% i = 271;
 load(names_out(i).full_path);
 
 time = Stable_Data.time;
