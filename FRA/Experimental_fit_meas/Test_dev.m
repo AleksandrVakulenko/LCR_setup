@@ -37,7 +37,7 @@ classdef Test_dev < handle
         function [T, V, I] = get_CV(obj)
             if ~isnan(obj.init_time)
                 Time_passed = toc(obj.init_time);
-                range = obj.T_arr < Time_passed;
+                range = obj.T_arr < Time_passed + obj.T_arr(1);
                 if ~isempty(find(range))
                     T = obj.T_arr(range);
                     V = obj.V_arr(range);

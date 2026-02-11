@@ -1,5 +1,6 @@
 function [A, P, C, D, fitresult, gof] = sin_fit_f(Time, Signal, Freq)
 
+Time = Time - Time(1);
 
 Eq = ['A*sin(2*pi*(' num2str(Freq) '*(1+D/1e6))*x+P/180*pi) + C'];
 
@@ -9,10 +10,11 @@ ft = fittype(Eq, 'independent', 'x', 'dependent', 'y');
 opts = fitoptions('Method', 'NonlinearLeastSquares');
 opts.Display = 'Off';
 
+% FIXME: limits
 %                     A      C    D[ppm]    P
-opts.Lower      =  [   0   -Inf   -500   -Inf ];
-opts.StartPoint =  [   2      0   -150      0 ];
-opts.Upper      =  [ Inf    Inf   +500    Inf ];
+opts.Lower      =  [   0   -10   -500   -180   ];
+opts.StartPoint =  [   1     0   -150      0.1 ];
+opts.Upper      =  [  20   +10   +500   +180   ];
 % FIXME: check limits on D
 % FIXME: use D only on long data
 
@@ -24,6 +26,7 @@ C = fitresult.C;
 D = fitresult.D;
 P = fitresult.P;
 
+% disp(confint(fitresult))
 end
 
 

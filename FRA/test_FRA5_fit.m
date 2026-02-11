@@ -80,9 +80,10 @@ save_files_flag = true;
 save_stable_data = false;
 
 % experimental_setup = Aster_calibration();
-experimental_setup = Aster_calibration_mid_freq();
+experimental_setup = Aster_calibration_low_freq();
 
 freq_list = experimental_setup.freq_list;
+% freq_list = [100 1]; % FIXME
 Phase_inv = experimental_setup.I2V_converter.phase_inv;
 Divider_value = experimental_setup.divider_value;
 % Voltage_gen = experimental_setup.sample_voltage; % V
@@ -159,7 +160,13 @@ for Cal_N = 1 %[1, 2, 3] % [4, 5] [6]
     
 
                     % NEW code here
+                    Voltage_gen_rms = Voltage_gen/sqrt(2);
+                    Lockin.set_gen_config(Voltage_gen_rms, freq);
+                    pause(1); % FIXME: why 1 s?
+
                     [Res, Phase] = measure_by_fit(Ammeter, freq);
+                    disp(['R = ' num2str(Res, '%0.2f') ' Ohm  /  ' ...
+                          'Phi = ' num2str(Phase, '%0.3f') ' deg'])
                     % NEW code ends
 
                     
@@ -169,7 +176,7 @@ for Cal_N = 1 %[1, 2, 3] % [4, 5] [6]
     
                     % R-Phi correction here
                     Data2 = apply_correction(Data, Correction_data);
-    
+%                     Fig.replace_FRA_data(Data);
 %                     Fig.replace_FRA_data([Data Data_ref]);
                     Fig.replace_FRA_data([Data Data2]);
 %                     Fig.replace_FRA_data([Data2 Data_ref]);

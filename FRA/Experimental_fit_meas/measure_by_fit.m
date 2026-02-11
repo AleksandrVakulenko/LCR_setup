@@ -5,7 +5,7 @@ FD = Fit_dev(Ammeter, freq);
 if freq < 1 % FIXME: !!!
     time_limit = 3/freq;
 else
-    time_limit = 1;
+    time_limit = 5;
 end
 
 
@@ -37,8 +37,8 @@ try
         end
 
         [X, Y, dX, dY, status] = FD.data_get_XY();
-        if ~status
-            stop = true;
+        if ~status || isempty(X)
+%             stop = true;
         else
             X_arr = [X_arr X];
             Y_arr = [Y_arr Y];
@@ -52,6 +52,12 @@ try
             if dAmp_ppm < 50
                 stop = true;
             end
+
+%             disp([num2str(X) ' ' ...
+%                   num2str(dX) ' ' ...
+%                   num2str(Y) ' ' ...
+%                   num2str(dY)])
+
 
             disp(num2str(dAmp/Amp*1e6))
             %     disp([num2str(dX/Amp) '   ' num2str(dY/Amp) '   ' num2str(dAmp/Amp*1e6)])

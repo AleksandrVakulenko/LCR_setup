@@ -33,25 +33,48 @@ classdef Fit_dev < handle
         function [X, Y, dX, dY, status] = data_get_XY(obj)
             status = obj.update_Aster();
             if numel(obj.T_arr) > 4
+                Freq = obj.freq;
+                T_a = obj.T_arr;
                 I = obj.I_arr;
                 V = obj.V_arr;
                 Scale_I = max(abs(I));
                 I = I/Scale_I;
                 Scale_V = max(abs(V));
                 V = V/Scale_V;
-                [A_I, P_I, ~, ~, FR_I] = sin_fit_f(obj.T_arr, I, obj.freq);
-                [A_V, P_V, ~, ~, FR_V] = sin_fit_f(obj.T_arr, V, obj.freq);
+                [A_I, P_I, ~, ~, FR_I] = sin_fit_f(T_a, I, obj.freq);
+                [A_V, P_V, ~, ~, FR_V] = sin_fit_f(T_a, V, obj.freq);
+    
+%                 folder = 'C:\MATLAB_code_lib\LCR_setup\test_results_2026_02_09\';
+%                 filename = [num2str(Freq*1000) '_' num2str(numel(obj.T_arr)) '.mat'];
+%                 fileaddr = fullfile([folder filename]);
+%                 save(fileaddr, 'T_a', 'V', 'I', 'Freq')
+
+%                 disp(['A_I = ' num2str(A_I) ' ' ...
+%                       'P_I = ' num2str(P_I*1e9) ' ' ...
+%                       'A_V = ' num2str(A_V) ' ' ...
+%                       'P_V = ' num2str(P_V*1e9) ' '])
+
+%                 figure
+%                 hold on
+%                 plot(obj.T_arr, I)
+%                 plot(obj.T_arr, V)
+%                 drawnow
+
                 CI_I = confint(FR_I);
                 CI_I = (CI_I(2, :) - CI_I(1, :))/2;
+%                 disp([num2str(CI_I(1)) ' ' num2str(CI_I(2)) ' ' num2str(CI_I(3)) ' ' num2str(CI_I(4))])
 
                 CI_V = confint(FR_V);
                 CI_V = (CI_V(2, :) - CI_V(1, :))/2;
+%                 disp([num2str(CI_V(1)) ' ' num2str(CI_V(2)) ' ' num2str(CI_V(3)) ' ' num2str(CI_V(4))])
 
                 dA_I = CI_I(1);
                 dP_I = CI_I(4);
 
                 dA_V = CI_V(1);
                 dP_V = CI_V(4);
+
+
 
                 A_I = A_I*Scale_I;
                 dA_I = dA_I*Scale_I;
@@ -61,10 +84,11 @@ classdef Fit_dev < handle
                 dPhase = sqrt(dP_V^2 + dP_I^2);
                 Amp = A_V/A_I;
                 dAmp = abs(1/A_I) * dA_V + abs(-A_V/A_I^2)*dA_I;
-                X = Amp*cos(Phase);
-                dX = abs(cos(Phase))*dAmp + abs(-Amp*sin(Phase))*dPhase;
-                Y = Amp*sin(Phase);
-                dY = abs(sin(Phase))*dAmp + abs(Amp*cos(Phase))*dPhase;
+                Phase_rad = Phase*pi/180;
+                X = Amp*cos(Phase_rad);
+                dX = abs(cos(Phase_rad))*dAmp + abs(-Amp*sin(Phase_rad))*dPhase;
+                Y = Amp*sin(Phase_rad);
+                dY = abs(sin(Phase_rad))*dAmp + abs(Amp*cos(Phase_rad))*dPhase;
             else
                 X = [];
                 Y = [];
@@ -85,8 +109,9 @@ classdef Fit_dev < handle
                     obj.T_arr = [obj.T_arr T];
                     obj.V_arr = [obj.V_arr V];
                     obj.I_arr = [obj.I_arr I];
-                catch
+                catch err
                     status = false;
+                    rethrow(err) % FIXME: bad code here
                 end
             else
                 error('data stream is not initiated (Fit_dev)')
