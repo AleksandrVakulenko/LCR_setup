@@ -52,12 +52,12 @@ Calibration_res = [1000
                    100e6
                    1e9];
 
-REF_FILE_NAME = ["DATA_REF_1k.mat"
-                 "DATA_REF_1k.mat"
-                 "DATA_REF_1k.mat"
-                 "DATA_REF_100M.mat"
-                 "DATA_REF_100M.mat"
-                 "DATA_REF_1G.mat"];
+REF_FILE_NAME = ["Reference_data_RES\DATA_REF_1k.mat"
+                 "Reference_data_RES\DATA_REF_1k.mat"
+                 "Reference_data_RES\DATA_REF_1k.mat"
+                 "Reference_data_RES\DATA_REF_100M.mat"
+                 "Reference_data_RES\DATA_REF_100M.mat"
+                 "Reference_data_RES\DATA_REF_1G.mat"];
 
 Calibration_repeat = 1;
 
