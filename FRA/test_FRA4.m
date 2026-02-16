@@ -68,7 +68,7 @@ Fern.load("aDevice");
 Fern.load("FRA_tools");
 addpath('FRA_stable_check');
 addpath('../include/');
-main_save_folder = '..\test_results_2026_01_22_03\';
+main_save_folder = '..\Results\test_results_2026_01_22_03\';
 mkdir(main_save_folder);
 File_counter = 0;
 %%

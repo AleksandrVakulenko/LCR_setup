@@ -69,11 +69,13 @@ Fern.load("FRA_tools");
 addpath('FRA_stable_check');
 addpath('../include/');
 addpath('Experimental_fit_meas\');
-main_save_folder = '..\test_results_2026_02_09\';
+main_save_folder = '..\Results\test_results_2026_02_16\';
 mkdir(main_save_folder);
 File_counter = 0;
 %%
 clc
+
+File_counter = File_counter + 1;
 
 Delta_limit = 50e-6;
 save_files_flag = true;
@@ -126,6 +128,7 @@ for Cal_N = 1 %[1, 2, 3] % [4, 5] [6]
             filename = [save_file_folder 'cfile_' ...
                 num2str(Cal_N, '%02u') '_' ...
                 num2str(Cal_rep_i, '%02u') ...
+                num2str(File_counter, '%03u') ...
                 '_R.mat'];
         end
 
@@ -162,7 +165,7 @@ for Cal_N = 1 %[1, 2, 3] % [4, 5] [6]
                     % NEW code here
                     Voltage_gen_rms = Voltage_gen/sqrt(2);
                     Lockin.set_gen_config(Voltage_gen_rms, freq);
-                    pause(1); % FIXME: why 1 s?
+                    pause(0.1); % FIXME: why 1 s?
 
                     [Res, Phase] = measure_by_fit(Ammeter, freq);
                     disp(['R = ' num2str(Res, '%0.2f') ' Ohm  /  ' ...
@@ -177,8 +180,8 @@ for Cal_N = 1 %[1, 2, 3] % [4, 5] [6]
                     % R-Phi correction here
                     Data2 = apply_correction(Data, Correction_data);
 %                     Fig.replace_FRA_data(Data);
-%                     Fig.replace_FRA_data([Data Data_ref]);
-                    Fig.replace_FRA_data([Data Data2]);
+                    Fig.replace_FRA_data([Data Data_ref]);
+%                     Fig.replace_FRA_data([Data Data2]);
 %                     Fig.replace_FRA_data([Data2 Data_ref]);
 %                     Fig.replace_FRA_data([Correction_data]);
                 end

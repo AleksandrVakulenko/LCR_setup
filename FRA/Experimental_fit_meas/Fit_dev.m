@@ -44,7 +44,7 @@ classdef Fit_dev < handle
                 [A_I, P_I, ~, ~, FR_I] = sin_fit_f(T_a, I, obj.freq);
                 [A_V, P_V, ~, ~, FR_V] = sin_fit_f(T_a, V, obj.freq);
     
-%                 folder = 'C:\MATLAB_code_lib\LCR_setup\test_results_2026_02_09\';
+%                 folder = 'C:\MATLAB_code_lib\LCR_setup\Results\test_results_2026_02_09\';
 %                 filename = [num2str(Freq*1000) '_' num2str(numel(obj.T_arr)) '.mat'];
 %                 fileaddr = fullfile([folder filename]);
 %                 save(fileaddr, 'T_a', 'V', 'I', 'Freq')
