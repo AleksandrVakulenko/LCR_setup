@@ -2,6 +2,7 @@ name:
 _
 
 dependencies:
+aDevice
 FRA_tools
 
 info:

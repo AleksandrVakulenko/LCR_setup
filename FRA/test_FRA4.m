@@ -67,7 +67,6 @@ Calibration_repeat = 1;
 Fern.load("aDevice");
 Fern.load("FRA_tools");
 addpath('FRA_stable_check');
-addpath('../include/');
 main_save_folder = '..\Results\test_results_2026_01_22_03\';
 mkdir(main_save_folder);
 File_counter = 0;
@@ -296,7 +295,7 @@ if freq_min < min(Corr_data.freq)
     Corr_data.Y = corr_y;
 end
 
-Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
+Correction_data_part = FRA_utils.interp_FRA_data(Corr_data, Data_to_corr);
 Data_out = Data_to_corr * Correction_data_part;
 
 end

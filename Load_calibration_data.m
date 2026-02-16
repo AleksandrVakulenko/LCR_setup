@@ -12,7 +12,6 @@
 
 %% LOAD FILES
 clc
-addpath('../include/');
 
 % Folder_root = 'Results\test_results_2025_04_23';
 % Folder_root = 'Results\test_results_2025_05_07';
@@ -64,7 +63,7 @@ Data_mean = FRA_data('R, [Ohm]', Freq, 'R', R_mean, 'Phi', Phi_mean);
 
 
 
-Data_ref = interp_FRA_data(Data_ref, Data);
+Data_ref = FRA_utils.interp_FRA_data(Data_ref, Data);
 Correction_data = Data_ref/Data_mean;
 
 corr_file_name = ['corr_Aster_dev_range_' num2str(Folder_N) '.mat'];

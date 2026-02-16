@@ -1,6 +1,5 @@
 
 clc
-addpath('../include/');
 
 clearvars Data_arr
 for i = 1:5
@@ -74,7 +73,7 @@ if freq_min < min(Corr_data.freq)
     Corr_data.Y = corr_y;
 end
 
-Correction_data_part = interp_FRA_data(Corr_data, Data_to_corr);
+Correction_data_part = FRA_utils.interp_FRA_data(Corr_data, Data_to_corr);
 Data_out = Data_to_corr * Correction_data_part;
 
 end
