@@ -1,7 +1,8 @@
 
 clc
 
-folder = '../../Debug_stable_data/';
+folder = '../../Debug_stable_data/'; % FIXME: check path
+error("FIXME: check path")
 names_out = find_stable_data_files(folder);
 
 

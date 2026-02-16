@@ -118,7 +118,7 @@ classdef stable_check < handle
         end
     end
 
-    % NOTE: debug zone:
+    % NOTE: debug zone: NEED REFACTOR
     methods (Access = private)
         function filename = gen_save_filename(obj)
             folder = 'Debug_stable_data';
